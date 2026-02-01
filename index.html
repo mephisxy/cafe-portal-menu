@@ -15,7 +15,6 @@
       --shadow: 0 18px 60px rgba(0,0,0,.45);
       --radius:18px;
 
-      /* ✅ Tamaño automático del título */
       --brand-size: clamp(20px, 4.8vw, 28px);
       --brand-letter: clamp(2.2px, 0.7vw, 3.6px);
     }
@@ -30,7 +29,6 @@
       overflow-x:hidden;
     }
 
-    /* ===== Starfield canvas ===== */
     #stars{
       position:fixed; inset:0;
       z-index:-3;
@@ -89,9 +87,7 @@
       line-height:1.05;
       white-space:nowrap;
     }
-    @media (max-width: 360px){
-      .brandTitle{ white-space:normal; }
-    }
+    @media (max-width: 360px){ .brandTitle{ white-space:normal; } }
 
     .controls{display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:flex-end; flex:1;}
     .search{
@@ -155,8 +151,8 @@
     .panel{
       background: rgba(11,16,36,.58);
       border:1px solid rgba(26,37,80,.7);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
+      border-radius: 18px;
+      box-shadow: 0 18px 60px rgba(0,0,0,.45);
       overflow:hidden;
       position:relative;
     }
@@ -254,11 +250,29 @@
       text-transform:uppercase;
       letter-spacing:1px;
       font-weight:900;
+      transition: box-shadow .25s ease, transform .15s ease, border-color .2s ease;
     }
+
+    /* Base categories con color */
+    .tag.baseCafe{border-color: rgba(57,184,255,.55); color: rgba(57,184,255,.95)}
+    .tag.baseRef{border-color: rgba(44,246,196,.45); color: rgba(44,246,196,.95)}
+    .tag.baseSnack{border-color: rgba(255,214,140,.40); color: rgba(255,214,140,.95)}
+
+    /* Sub categories con color */
     .tag.hot{border-color: rgba(255,204,102,.5); color: rgba(255,204,102,.95)}
     .tag.cold{border-color: rgba(57,184,255,.55); color: rgba(57,184,255,.95)}
     .tag.frappe{border-color: rgba(124,77,255,.55); color: rgba(124,77,255,.95)}
     .tag.special{border-color: rgba(44,246,196,.45); color: rgba(44,246,196,.95)}
+
+    /* Glow al tacto (tap) y hover */
+    .tag.baseCafe:hover,.tag.baseCafe:active{ box-shadow:0 0 16px rgba(57,184,255,.45),0 0 34px rgba(57,184,255,.20); transform:scale(1.05); }
+    .tag.baseRef:hover,.tag.baseRef:active{ box-shadow:0 0 16px rgba(44,246,196,.45),0 0 30px rgba(44,246,196,.18); transform:scale(1.05); }
+    .tag.baseSnack:hover,.tag.baseSnack:active{ box-shadow:0 0 16px rgba(255,214,140,.40),0 0 32px rgba(255,214,140,.18); transform:scale(1.05); }
+
+    .tag.hot:hover,.tag.hot:active{ box-shadow:0 0 16px rgba(255,204,102,.45),0 0 34px rgba(255,204,102,.20); transform:scale(1.05); }
+    .tag.cold:hover,.tag.cold:active{ box-shadow:0 0 16px rgba(57,184,255,.45),0 0 34px rgba(57,184,255,.20); transform:scale(1.05); }
+    .tag.frappe:hover,.tag.frappe:active{ box-shadow:0 0 16px rgba(124,77,255,.45),0 0 34px rgba(124,77,255,.22); transform:scale(1.05); }
+    .tag.special:hover,.tag.special:active{ box-shadow:0 0 16px rgba(44,246,196,.45),0 0 30px rgba(44,246,196,.18); transform:scale(1.05); }
 
     .name{font-weight:1000; margin:0 0 6px; font-size:15px; text-transform:uppercase; letter-spacing:1.3px;}
     .desc{margin:0 0 10px; font-size:12px; color:rgba(234,240,255,.68); line-height:1.35}
@@ -341,14 +355,8 @@
       letter-spacing:1.2px;
     }
 
-    /* ✅ estilos para deshabilitado */
-    .btn[disabled], .checkout[disabled]{
-      opacity: .55;
-      cursor: not-allowed;
-      filter: grayscale(20%);
-    }
+    .btn[disabled], .checkout[disabled]{ opacity:.55; cursor:not-allowed; filter: grayscale(20%); }
 
-    /* ===== Floating button ===== */
     #waFloat{
       position: fixed;
       left: 50%;
@@ -395,7 +403,6 @@
       font-weight:900;
     }
 
-    /* ===== Cart tabs ===== */
     .cartTabs{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px}
     .cartTabBtn{
       padding:8px 10px;
@@ -429,7 +436,6 @@
       outline:none;
     }
 
-    /* ===== Custom Modal (Android-safe) ===== */
     .modalOverlay{
       position:fixed; inset:0;
       background: rgba(0,0,0,.55);
@@ -443,7 +449,7 @@
       border-radius: 18px;
       border:1px solid rgba(26,37,80,.75);
       background: rgba(11,16,36,.94);
-      box-shadow: var(--shadow);
+      box-shadow: 0 18px 60px rgba(0,0,0,.45);
       overflow:hidden;
     }
     .modalHead{
@@ -506,9 +512,7 @@
       <div class="top">
         <div class="brand">
           <div class="logo" aria-hidden="true"></div>
-          <div>
-            <h1 class="brandTitle">CAFÉ PORTAL</h1>
-          </div>
+          <div><h1 class="brandTitle">CAFÉ PORTAL</h1></div>
         </div>
 
         <div class="controls">
@@ -594,7 +598,6 @@
     </div>
   </main>
 
-  <!-- Modal Android-safe -->
   <div class="modalOverlay" id="modalOverlay">
     <div class="modal" role="dialog" aria-modal="true">
       <div class="modalHead">
@@ -610,19 +613,18 @@
             <label>Tamaño</label>
             <select id="mSize"></select>
           </div>
-          <div style="flex:1; min-width:180px">
+
+          <div id="optionWrap" style="flex:1; min-width:180px">
             <label>Opción</label>
             <select id="mOption"></select>
           </div>
         </div>
 
-        <!-- Sabor cafetería -->
         <div id="flavorWrapCafe" style="margin-top:10px; display:none">
           <label>Sabor (Cafetería)</label>
           <select id="mFlavorCafe"></select>
         </div>
 
-        <!-- Sabor limonada -->
         <div id="flavorWrapLemon" style="margin-top:10px; display:none">
           <label>Sabor (Limonada)</label>
           <select id="mFlavorLemon"></select>
@@ -646,7 +648,6 @@
     </div>
   </div>
 
-  <!-- Botón flotante: solo baja al carrito -->
   <button id="waFloat" type="button" title="Ver carrito">
     <span class="left">
       <span style="font-size:18px">🧾</span>
@@ -671,11 +672,9 @@
   const FLAVORS_CAFE = ["Sin sabor", "Vainilla", "Caramelo", "Mocca", "Crema irlandesa", "Avellana"];
   const FLAVORS_LEMON = ["Frutos rojos", "Fresa", "Mango", "Pepino"];
 
-  // Nombre cliente (persistente)
   const NAME_KEY = "cafePortal_customerName";
   let customerName = (localStorage.getItem(NAME_KEY) || "").trim();
 
-  // ✅ ID del producto que debe tener selector de sabor para limonada
   const LEMON_FLAVOR_ITEM_ID = "r_sp_lim_sab";
 
   const MENU = [
@@ -833,12 +832,32 @@
 
   function tagHTML(item){
     const chips = [];
-    chips.push(`<span class="tag">${item.baseCat}</span>`);
-    if(item.baseCat==="Cafetería" && item.subCat) chips.push(`<span class="tag">${item.subCat}</span>`);
-    if((item.tags||[]).includes("hot")) chips.push(`<span class="tag hot">Caliente</span>`);
-    if((item.tags||[]).includes("cold")) chips.push(`<span class="tag cold">Frío</span>`);
-    if((item.tags||[]).includes("frappe")) chips.push(`<span class="tag frappe">Frappé</span>`);
-    if((item.tags||[]).includes("special")) chips.push(`<span class="tag special">Especial</span>`);
+
+    const baseClass = item.baseCat === "Cafetería" ? "baseCafe"
+                    : item.baseCat === "Refresquería" ? "baseRef"
+                    : item.baseCat === "Snacks" ? "baseSnack"
+                    : "";
+    chips.push(`<span class="tag ${baseClass}">${item.baseCat}</span>`);
+
+    if(item.baseCat==="Cafetería" && item.subCat){
+      const subClass = item.subCat === "Caliente" ? "hot"
+                     : item.subCat === "Frío" ? "cold"
+                     : item.subCat === "Frappé" ? "frappe"
+                     : "";
+      chips.push(`<span class="tag ${subClass}">${item.subCat}</span>`);
+    }
+
+    const sub = item.subCat || "";
+    const hasHot = (item.tags||[]).includes("hot");
+    const hasCold = (item.tags||[]).includes("cold");
+    const hasFrappe = (item.tags||[]).includes("frappe");
+    const hasSpecial = (item.tags||[]).includes("special");
+
+    if(hasSpecial) chips.push(`<span class="tag special">Especial</span>`);
+    if(hasHot && !(item.baseCat==="Cafetería" && sub==="Caliente")) chips.push(`<span class="tag hot">Caliente</span>`);
+    if(hasCold && !(item.baseCat==="Cafetería" && sub==="Frío")) chips.push(`<span class="tag cold">Frío</span>`);
+    if(hasFrappe && !(item.baseCat==="Cafetería" && sub==="Frappé")) chips.push(`<span class="tag frappe">Frappé</span>`);
+
     return chips.join("");
   }
 
@@ -852,7 +871,6 @@
     results.forEach(item=>{
       const div = document.createElement("div");
       div.className = "item";
-
       div.innerHTML = `
         <div class="tagrow">${tagHTML(item)}</div>
         <p class="name">${item.name}</p>
@@ -872,18 +890,27 @@
     });
   }
 
-  // ===== Modal + Extras =====
+  // ===== Modal + Extras + Opciones =====
   let modalItem = null;
 
-  // ✅ Snacks y Refresquería: sin extras
   function extrasOptions(item){
-    if(item?.baseCat === "Snacks" || item?.baseCat === "Refresquería"){
-      return ["Sin extras"];
-    }
-    if(item?.baseCat === "Cafetería"){
-      return ["Sin extras", "Con extra (+10)", "Extra shot (+10)"];
-    }
+    if(item?.baseCat === "Snacks" || item?.baseCat === "Refresquería") return ["Sin extras"];
+    if(item?.baseCat === "Cafetería") return ["Sin extras", "Con extra (+10)", "Extra shot (+10)"];
     return ["Sin extras"];
+  }
+
+  function getOptions(item){
+    if(!item) return ["Normal"];
+    if(item.baseCat === "Snacks") return null;
+
+    const base = [];
+    if(item.baseCat === "Cafetería") base.push("Normal", "Descafeinado");
+    else if(item.baseCat === "Refresquería") base.push("Normal", "Poco hielo");
+    else base.push("Normal");
+
+    const extra = Array.isArray(item.options) ? item.options : [];
+    const merged = [...base, ...extra];
+    return merged.filter((v,i,a)=>a.indexOf(v)===i);
   }
 
   function openModal(itemId, preSize){
@@ -898,11 +925,20 @@
       .map(([s,p])=>`<option value="${s}">${s} — ${money(p)}</option>`).join("");
     if(preSize) sizeSel.value = preSize;
 
+    const optWrap = $("#optionWrap");
     const optSel = $("#mOption");
-    const options = modalItem.options?.length ? modalItem.options : ["Normal"];
-    optSel.innerHTML = options.map(o=>`<option value="${o}">${o}</option>`).join("");
+    const opts = getOptions(modalItem);
 
-    // Cafetería flavor
+    if(opts === null){
+      optWrap.style.display = "none";
+      optSel.innerHTML = "";
+      optSel.value = "";
+    } else {
+      optWrap.style.display = "block";
+      optSel.innerHTML = opts.map(o=>`<option value="${o}">${o}</option>`).join("");
+      optSel.value = opts[0] || "Normal";
+    }
+
     const cafeWrap = $("#flavorWrapCafe");
     const cafeSel = $("#mFlavorCafe");
     if(modalItem.baseCat === "Cafetería"){
@@ -914,7 +950,6 @@
       cafeSel.innerHTML = "";
     }
 
-    // Limonada flavor (solo para limonada de sabor) ✅ OBLIGATORIO + botón deshabilitado
     const lemonWrap = $("#flavorWrapLemon");
     const lemonSel = $("#mFlavorLemon");
     const addBtn = $("#mAdd");
@@ -925,11 +960,8 @@
         `<option value="" selected disabled>Selecciona un sabor…</option>` +
         FLAVORS_LEMON.map(f=>`<option value="${f}">${f}</option>`).join("");
       lemonSel.value = "";
-
       addBtn.disabled = true;
-      lemonSel.onchange = ()=>{
-        addBtn.disabled = !lemonSel.value;
-      };
+      lemonSel.onchange = ()=>{ addBtn.disabled = !lemonSel.value; };
     } else {
       lemonWrap.style.display = "none";
       lemonSel.innerHTML = "";
@@ -937,7 +969,6 @@
       addBtn.disabled = false;
     }
 
-    // Extras (Snacks/Refresquería sin extras) + leyenda (solo en modal)
     const extSel = $("#mExtras");
     extSel.innerHTML = extrasOptions(modalItem).map(e=>`<option value="${e}">${e}</option>`).join("");
 
@@ -968,7 +999,7 @@
 
     const safeNotes = String(notes || "").replace(/\s+/g, " ").trim();
     const safeExtras = String(extras || "Sin extras").trim();
-    const safeOption = String(option || "Normal").trim();
+    const safeOption = (item.baseCat === "Snacks") ? "" : String(option || "Normal").trim();
     const safeFlavor = String(flavorLabel || "").trim();
 
     const key = [item.id, size, safeOption, safeFlavor, safeExtras, safeNotes].join("|");
@@ -978,6 +1009,7 @@
     else cart.push({
       key,
       id:item.id,
+      baseCat:item.baseCat,
       name:item.name,
       size,
       option: safeOption,
@@ -1008,14 +1040,21 @@
       const div = document.createElement("div");
       div.className = "lineitem";
 
-      const flavorText = c.flavor ? ` • ${c.flavor}` : "";
-      const extrasText = (c.extras && c.extras!=="Sin extras") ? ` • ${c.extras}` : "";
-      const notesText = c.notes ? ` • ${c.notes}` : "";
+      const parts = [];
+      parts.push(c.size);
+
+      if(c.baseCat !== "Snacks"){
+        const opt = c.option ? c.option : "Normal";
+        parts.push(opt);
+      }
+      if(c.flavor) parts.push(c.flavor);
+      if(c.extras && c.extras!=="Sin extras") parts.push(c.extras);
+      if(c.notes) parts.push(c.notes);
 
       div.innerHTML = `
         <div style="min-width:0">
           <p class="li-title">${c.name}</p>
-          <div class="li-sub">${c.size} • ${c.option}${flavorText}${extrasText}${notesText}</div>
+          <div class="li-sub">${parts.join(" • ")}</div>
           <div class="li-sub" style="margin-top:6px; opacity:.9"><strong>${money(c.price)}</strong></div>
         </div>
         <div class="li-actions">
@@ -1061,17 +1100,16 @@
   $("#mAdd").onclick = ()=>{
     if(!modalItem) return;
     const size = $("#mSize").value;
-    const option = $("#mOption").value;
+
+    let option = $("#mOption").value;
+    if(modalItem.baseCat === "Snacks") option = "";
 
     let flavorLabel = "";
-
-    // Cafetería: opcional
     if(modalItem.baseCat === "Cafetería"){
       const f = $("#mFlavorCafe").value;
       flavorLabel = (f && f !== "Sin sabor") ? f : "";
     }
 
-    // Limonada (sabores): obligatorio
     if(modalItem.id === LEMON_FLAVOR_ITEM_ID){
       const chosen = $("#mFlavorLemon").value;
       if(!chosen){
@@ -1083,7 +1121,6 @@
     }
 
     let extras = $("#mExtras").value;
-    // ✅ Snacks y Refresquería siempre Sin extras
     if(modalItem.baseCat === "Snacks" || modalItem.baseCat === "Refresquería"){
       extras = "Sin extras";
     }
@@ -1101,7 +1138,6 @@
     renderCart();
   };
 
-  // ===== Cart tabs logic =====
   function setCartTab(tab){
     $("#tabOrder").classList.toggle("active", tab==="order");
     $("#tabName").classList.toggle("active", tab==="name");
@@ -1111,7 +1147,6 @@
   $("#tabOrder").onclick = ()=>setCartTab("order");
   $("#tabName").onclick = ()=>setCartTab("name");
 
-  // Nombre input
   const nameInput = document.getElementById("customerName");
   if(nameInput){
     nameInput.value = customerName;
@@ -1121,17 +1156,22 @@
     });
   }
 
-  // ===== WhatsApp =====
   function buildOrderText(){
     const lines = [];
     lines.push("Pedido — CAFÉ PORTAL");
     if(customerName) lines.push("Nombre: " + customerName);
     lines.push("—");
     cart.forEach(c=>{
-      const flavor = c.flavor ? ` • ${c.flavor}` : "";
-      const extras = (c.extras && c.extras!=="Sin extras") ? ` • ${c.extras}` : "";
-      const notes = c.notes ? ` • ${c.notes}` : "";
-      lines.push(`${c.qty}× ${c.name} (${c.size}) • ${c.option}${flavor}${extras}${notes} = ${money(c.price*c.qty)}`);
+      const parts = [];
+      parts.push(`${c.qty}× ${c.name} (${c.size})`);
+      if(c.baseCat !== "Snacks"){
+        const opt = c.option ? c.option : "Normal";
+        parts.push(opt);
+      }
+      if(c.flavor) parts.push(c.flavor);
+      if(c.extras && c.extras!=="Sin extras") parts.push(c.extras);
+      if(c.notes) parts.push(c.notes);
+      lines.push(`${parts.join(" • ")} = ${money(c.price*c.qty)}`);
     });
     const total = cart.reduce((s,x)=>s + x.price*x.qty, 0);
     lines.push("—");
@@ -1165,19 +1205,15 @@
     const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
     window.open(url, "_blank");
 
-    // ✅ Vaciar carrito automáticamente después de abrir WhatsApp
     cart = [];
     renderCart();
   }
-
   $("#checkout").onclick = sendToWhatsApp;
 
-  // ===== flotante: solo baja al carrito =====
   $("#waFloat").onclick = ()=>{
     const cartEl = document.getElementById("cartPanel");
     if(!cartEl) return;
     cartEl.scrollIntoView({ behavior: "smooth", block: "start" });
-
     cartEl.animate(
       [
         { boxShadow: "0 0 0 rgba(0,0,0,0)" },
@@ -1205,7 +1241,6 @@
     }
   }
 
-  // ===== Base pills & filtros =====
   function setBase(v){
     baseFilter = v;
     catFilter = "Todo";
@@ -1217,10 +1252,7 @@
   $("#baseRef").onclick = ()=>setBase("Refresquería");
   $("#baseSnk").onclick = ()=>setBase("Snacks");
 
-  $("#q").addEventListener("input", (e)=>{
-    query = e.target.value;
-    renderAll();
-  });
+  $("#q").addEventListener("input", (e)=>{ query = e.target.value; renderAll(); });
 
   function renderAll(){
     updateHeroTitle();
@@ -1231,7 +1263,6 @@
     renderCart();
   }
 
-  // ===== Starfield =====
   (function starfield(){
     const canvas = document.getElementById("stars");
     const ctx = canvas.getContext("2d", { alpha:true });
