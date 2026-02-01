@@ -341,6 +341,13 @@
       letter-spacing:1.2px;
     }
 
+    /* ✅ estilos para deshabilitado */
+    .btn[disabled], .checkout[disabled]{
+      opacity: .55;
+      cursor: not-allowed;
+      filter: grayscale(20%);
+    }
+
     /* ===== Floating button ===== */
     #waFloat{
       position: fixed;
@@ -902,16 +909,28 @@
       cafeSel.innerHTML = "";
     }
 
-    // Limonada flavor (solo para limonada de sabor)
+    // Limonada flavor (solo para limonada de sabor) ✅ OBLIGATORIO
     const lemonWrap = $("#flavorWrapLemon");
     const lemonSel = $("#mFlavorLemon");
+    const addBtn = $("#mAdd");
+
     if(modalItem.id === LEMON_FLAVOR_ITEM_ID){
       lemonWrap.style.display = "block";
-      lemonSel.innerHTML = FLAVORS_LEMON.map(f=>`<option value="${f}">${f}</option>`).join("");
-      lemonSel.value = FLAVORS_LEMON[0];
+      lemonSel.innerHTML =
+        `<option value="" selected disabled>Selecciona un sabor…</option>` +
+        FLAVORS_LEMON.map(f=>`<option value="${f}">${f}</option>`).join("");
+      lemonSel.value = "";
+
+      // ✅ deshabilita botón hasta que elijan sabor
+      addBtn.disabled = true;
+      lemonSel.onchange = ()=>{
+        addBtn.disabled = !lemonSel.value;
+      };
     } else {
       lemonWrap.style.display = "none";
       lemonSel.innerHTML = "";
+      lemonSel.onchange = null;
+      addBtn.disabled = false;
     }
 
     const extSel = $("#mExtras");
@@ -938,7 +957,7 @@
     const safeNotes = String(notes || "").replace(/\s+/g, " ").trim();
     const safeExtras = String(extras || "Sin extras").trim();
     const safeOption = String(option || "Normal").trim();
-    const safeFlavor = String(flavorLabel || "").trim(); // puede ser café o limonada
+    const safeFlavor = String(flavorLabel || "").trim();
 
     const key = [item.id, size, safeOption, safeFlavor, safeExtras, safeNotes].join("|");
 
@@ -1032,13 +1051,23 @@
     const size = $("#mSize").value;
     const option = $("#mOption").value;
 
-    // elegir flavor según tipo
     let flavorLabel = "";
+
+    // Cafetería: opcional
     if(modalItem.baseCat === "Cafetería"){
       const f = $("#mFlavorCafe").value;
       flavorLabel = (f && f !== "Sin sabor") ? f : "";
-    } else if(modalItem.id === LEMON_FLAVOR_ITEM_ID){
-      flavorLabel = $("#mFlavorLemon").value || "";
+    }
+
+    // Limonada (sabores): obligatorio
+    if(modalItem.id === LEMON_FLAVOR_ITEM_ID){
+      const chosen = $("#mFlavorLemon").value;
+      if(!chosen){
+        alert("Selecciona un sabor para la limonada 🙂");
+        $("#mFlavorLemon")?.focus();
+        return;
+      }
+      flavorLabel = chosen;
     }
 
     const extras = $("#mExtras").value;
