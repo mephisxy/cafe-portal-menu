@@ -852,6 +852,7 @@
     results.forEach(item=>{
       const div = document.createElement("div");
       div.className = "item";
+
       div.innerHTML = `
         <div class="tagrow">${tagHTML(item)}</div>
         <p class="name">${item.name}</p>
@@ -874,11 +875,15 @@
   // ===== Modal + Extras =====
   let modalItem = null;
 
+  // ✅ Snacks y Refresquería: sin extras
   function extrasOptions(item){
+    if(item?.baseCat === "Snacks" || item?.baseCat === "Refresquería"){
+      return ["Sin extras"];
+    }
     if(item?.baseCat === "Cafetería"){
       return ["Sin extras", "Con extra (+10)", "Extra shot (+10)"];
     }
-    return ["Sin extras", "Con extra (+10)"];
+    return ["Sin extras"];
   }
 
   function openModal(itemId, preSize){
@@ -909,7 +914,7 @@
       cafeSel.innerHTML = "";
     }
 
-    // Limonada flavor (solo para limonada de sabor) ✅ OBLIGATORIO
+    // Limonada flavor (solo para limonada de sabor) ✅ OBLIGATORIO + botón deshabilitado
     const lemonWrap = $("#flavorWrapLemon");
     const lemonSel = $("#mFlavorLemon");
     const addBtn = $("#mAdd");
@@ -921,7 +926,6 @@
         FLAVORS_LEMON.map(f=>`<option value="${f}">${f}</option>`).join("");
       lemonSel.value = "";
 
-      // ✅ deshabilita botón hasta que elijan sabor
       addBtn.disabled = true;
       lemonSel.onchange = ()=>{
         addBtn.disabled = !lemonSel.value;
@@ -933,11 +937,19 @@
       addBtn.disabled = false;
     }
 
+    // Extras (Snacks/Refresquería sin extras) + leyenda (solo en modal)
     const extSel = $("#mExtras");
     extSel.innerHTML = extrasOptions(modalItem).map(e=>`<option value="${e}">${e}</option>`).join("");
-    $("#extrasHint").textContent = (modalItem.baseCat === "Cafetería")
-      ? "“Con extra” (+$10) • “Extra shot” (+$10)"
-      : "“Con extra” suma +$10.";
+
+    const noExtras = (modalItem.baseCat==="Snacks" || modalItem.baseCat==="Refresquería");
+    if(noExtras){
+      extSel.value = "Sin extras";
+      extSel.disabled = true;
+      $("#extrasHint").textContent = "Sin extras. Si deseas algo extra, especifícalo en notas.";
+    } else {
+      extSel.disabled = false;
+      $("#extrasHint").textContent = "“Con extra” (+$10) • “Extra shot” (+$10)";
+    }
 
     $("#mNotes").value = "";
     $("#modalOverlay").classList.add("open");
@@ -1070,7 +1082,12 @@
       flavorLabel = chosen;
     }
 
-    const extras = $("#mExtras").value;
+    let extras = $("#mExtras").value;
+    // ✅ Snacks y Refresquería siempre Sin extras
+    if(modalItem.baseCat === "Snacks" || modalItem.baseCat === "Refresquería"){
+      extras = "Sin extras";
+    }
+
     const notes = $("#mNotes").value.trim();
     addToCart(modalItem, size, option, flavorLabel, extras, notes);
     closeModal();
@@ -1122,7 +1139,6 @@
     return lines.join("\n");
   }
 
-  // ✅ ALERTA ACTIVADA: si no hay nombre, pide agregarlo y manda a pestaña "Tu nombre"
   function sendToWhatsApp(){
     if(!cart.length){
       alert("Tu carrito está vacío 🙂");
@@ -1148,6 +1164,10 @@
     const text = buildOrderText();
     const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
     window.open(url, "_blank");
+
+    // ✅ Vaciar carrito automáticamente después de abrir WhatsApp
+    cart = [];
+    renderCart();
   }
 
   $("#checkout").onclick = sendToWhatsApp;
