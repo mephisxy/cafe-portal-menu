@@ -322,11 +322,10 @@
       letter-spacing:1.2px;
     }
 
-    /* ===== Floating WhatsApp ===== */
+    /* ===== Floating button ===== */
     #waFloat{
       position: fixed;
       left: 50%;
-      transform: translateX(-50%);
       bottom: calc(14px + env(safe-area-inset-bottom, 0px));
       z-index: 9999;
 
@@ -349,6 +348,12 @@
       box-shadow: 0 18px 60px rgba(0,0,0,.50);
       text-transform:uppercase;
       letter-spacing:1.6px;
+
+      /* oculto por defecto: aparece solo cuando hay items */
+      opacity: 0;
+      pointer-events: none;
+      transform: translateX(-50%) translateY(10px);
+      transition: opacity .18s ease, transform .18s ease;
     }
     #waFloat .left{display:flex; align-items:center; gap:10px;}
     #waFloat .wabadge{
@@ -490,12 +495,12 @@
           <div class="cards" id="cards"></div>
 
           <div class="hint" style="margin-top:12px; line-height:1.4">
-            <strong>Extras:</strong> “Con extra” (+$10) disponible para todos los productos.
+            <strong>Sabores (Cafetería):</strong> vainilla, caramelo, mocca, crema irlandesa, avellana.
           </div>
         </div>
       </section>
 
-      <aside class="panel cart">
+      <aside class="panel cart" id="cartPanel">
         <h2>Carrito</h2>
         <div class="cartbox">
           <div class="hint">Toca un precio para agregar. Puedes anotar “sin azúcar”, etc.</div>
@@ -535,15 +540,21 @@
           </div>
         </div>
 
+        <!-- Sabor (solo cafetería) -->
+        <div id="flavorWrap" style="margin-top:10px; display:none">
+          <label>Sabor (Cafetería)</label>
+          <select id="mFlavor"></select>
+        </div>
+
         <div style="margin-top:10px">
           <label>Extras (opcional)</label>
           <select id="mExtras"></select>
-          <div class="hint" style="margin-top:6px">“Con extra” suma +$10.</div>
+          <div class="hint" style="margin-top:6px" id="extrasHint">Selecciona un extra si lo deseas.</div>
         </div>
 
         <div style="margin-top:10px">
           <label>Notas (opcional)</label>
-          <textarea id="mNotes" placeholder="Ej: sin azúcar, etc."></textarea>
+          <textarea id="mNotes" placeholder="Ej: sin azúcar, leche deslactosada, etc."></textarea>
         </div>
       </div>
       <div class="modalActions">
@@ -553,11 +564,11 @@
     </div>
   </div>
 
-  <!-- Botón flotante WhatsApp -->
-  <button id="waFloat" type="button" title="Enviar pedido por WhatsApp">
+  <!-- Botón flotante: solo baja al carrito -->
+  <button id="waFloat" type="button" title="Ver carrito">
     <span class="left">
-      <span style="font-size:18px">💬</span>
-      <span>Enviar pedido</span>
+      <span style="font-size:18px">🧾</span>
+      <span>Ver carrito</span>
     </span>
     <span class="wabadge" id="waBadge">0 items • $0</span>
   </button>
@@ -574,6 +585,8 @@
       .replace(/[\u0300-\u036f]/g, "")
       .toLowerCase();
   }
+
+  const FLAVORS = ["Sin sabor", "Vainilla", "Caramelo", "Mocca", "Crema irlandesa", "Avellana"];
 
   const MENU = [
     { id:"c_hot_ame", baseCat:"Cafetería", subCat:"Caliente", name:"Americano", desc:"Café caliente.", tags:["hot"], sizes:{ "12 oz":40, "16 oz":50 } },
@@ -669,7 +682,6 @@
     return baseOk && leftOk && subOk && qOk;
   }
 
-  /* ====== FALTABAN ESTAS FUNCIONES (ARREGLADO) ====== */
   function renderBasePills(){
     const map = {
       all: $("#baseAll"),
@@ -701,8 +713,6 @@
       btn.innerHTML = `<span>${c}</span><span class="badge">${count}</span>`;
       btn.onclick = ()=>{
         catFilter = c;
-
-        // si está en "Todo" global y toca una categoría base del panel izquierdo
         if(baseFilter==="all" && ["Cafetería","Refresquería","Snacks"].includes(c)){
           baseFilter = c;
           catFilter = "Todo";
@@ -730,7 +740,6 @@
       el.appendChild(b);
     });
   }
-  /* ====== /FALTABAN ====== */
 
   function tagHTML(item){
     const chips = [];
@@ -746,7 +755,6 @@
   function renderCards(){
     const cards = $("#cards");
     const results = MENU.filter(matches);
-
     $("#resultHint").textContent = results.length ? `${results.length} opciones` : "Sin resultados";
     $("#sectionName").textContent = baseFilter==="all" ? "Todo" : baseFilter;
 
@@ -773,10 +781,14 @@
     });
   }
 
-  // ===== Modal + Extras (todos con "Con extra") =====
+  // ===== Modal + Extras =====
   let modalItem = null;
 
-  function extrasOptionsForAll(){
+  function extrasOptions(item){
+    // cafetería: agrega extra shot
+    if(item?.baseCat === "Cafetería"){
+      return ["Sin extras", "Con extra (+10)", "Extra shot (+10)"];
+    }
     return ["Sin extras", "Con extra (+10)"];
   }
 
@@ -792,12 +804,30 @@
       .map(([s,p])=>`<option value="${s}">${s} — ${money(p)}</option>`).join("");
     if(preSize) sizeSel.value = preSize;
 
+    // Opción (para casos especiales como Chai frío/caliente)
     const optSel = $("#mOption");
     const options = modalItem.options?.length ? modalItem.options : ["Normal"];
     optSel.innerHTML = options.map(o=>`<option value="${o}">${o}</option>`).join("");
 
+    // Sabor (solo cafetería)
+    const flavorWrap = $("#flavorWrap");
+    const flavorSel = $("#mFlavor");
+    if(modalItem.baseCat === "Cafetería"){
+      flavorWrap.style.display = "block";
+      flavorSel.innerHTML = FLAVORS.map(f=>`<option value="${f}">${f}</option>`).join("");
+      flavorSel.value = "Sin sabor";
+    } else {
+      flavorWrap.style.display = "none";
+      flavorSel.innerHTML = "";
+    }
+
+    // Extras según categoría
     const extSel = $("#mExtras");
-    extSel.innerHTML = extrasOptionsForAll().map(e=>`<option value="${e}">${e}</option>`).join("");
+    extSel.innerHTML = extrasOptions(modalItem).map(e=>`<option value="${e}">${e}</option>`).join("");
+
+    $("#extrasHint").textContent = (modalItem.baseCat === "Cafetería")
+      ? "“Con extra” (+$10) • “Extra shot” (+$10)"
+      : "“Con extra” suma +$10.";
 
     $("#mNotes").value = "";
     $("#modalOverlay").classList.add("open");
@@ -809,7 +839,7 @@
   $("#modalOverlay").addEventListener("click", (e)=>{ if(e.target.id === "modalOverlay") closeModal(); });
 
   // ===== Carrito =====
-  function addToCart(item, size, option, extras, notes){
+  function addToCart(item, size, option, flavor, extras, notes){
     const basePrice = item.sizes[size] ?? 0;
     const extraPrice = Number((extras?.match(/\+(\d+)/)?.[1]) || 0);
     const price = basePrice + extraPrice;
@@ -817,8 +847,11 @@
     const safeNotes = String(notes || "").replace(/\s+/g, " ").trim();
     const safeExtras = String(extras || "Sin extras").trim();
     const safeOption = String(option || "Normal").trim();
+    const safeFlavor = (item.baseCat === "Cafetería")
+      ? String(flavor || "Sin sabor").trim()
+      : "";
 
-    const key = [item.id, size, safeOption, safeExtras, safeNotes].join("|");
+    const key = [item.id, size, safeOption, safeFlavor, safeExtras, safeNotes].join("|");
 
     const existing = cart.find(x=>x.key===key);
     if(existing) existing.qty += 1;
@@ -828,6 +861,7 @@
       name:item.name,
       size,
       option: safeOption,
+      flavor: safeFlavor,
       extras: safeExtras,
       notes: safeNotes,
       price,
@@ -853,10 +887,15 @@
     cart.forEach((c)=>{
       const div = document.createElement("div");
       div.className = "lineitem";
+
+      const flavorText = (c.flavor && c.flavor !== "Sin sabor") ? ` • ${c.flavor}` : "";
+      const extrasText = (c.extras && c.extras!=="Sin extras") ? ` • ${c.extras}` : "";
+      const notesText = c.notes ? ` • ${c.notes}` : "";
+
       div.innerHTML = `
         <div style="min-width:0">
           <p class="li-title">${c.name}</p>
-          <div class="li-sub">${c.size} • ${c.option}${c.extras && c.extras!=="Sin extras" ? " • " + c.extras : ""}${c.notes ? " • " + c.notes : ""}</div>
+          <div class="li-sub">${c.size} • ${c.option}${flavorText}${extrasText}${notesText}</div>
           <div class="li-sub" style="margin-top:6px; opacity:.9"><strong>${money(c.price)}</strong></div>
         </div>
         <div class="li-actions">
@@ -903,9 +942,10 @@
     if(!modalItem) return;
     const size = $("#mSize").value;
     const option = $("#mOption").value;
+    const flavor = $("#mFlavor").value;
     const extras = $("#mExtras").value;
     const notes = $("#mNotes").value.trim();
-    addToCart(modalItem, size, option, extras, notes);
+    addToCart(modalItem, size, option, flavor, extras, notes);
     closeModal();
   };
 
@@ -923,9 +963,10 @@
     lines.push("Pedido — CAFÉ PORTAL");
     lines.push("—");
     cart.forEach(c=>{
+      const flavor = (c.flavor && c.flavor !== "Sin sabor") ? ` • ${c.flavor}` : "";
       const extras = (c.extras && c.extras!=="Sin extras") ? ` • ${c.extras}` : "";
       const notes = c.notes ? ` • ${c.notes}` : "";
-      lines.push(`${c.qty}× ${c.name} (${c.size}) • ${c.option}${extras}${notes} = ${money(c.price*c.qty)}`);
+      lines.push(`${c.qty}× ${c.name} (${c.size}) • ${c.option}${flavor}${extras}${notes} = ${money(c.price*c.qty)}`);
     });
     const total = cart.reduce((s,x)=>s + x.price*x.qty, 0);
     lines.push("—");
@@ -950,23 +991,47 @@
   }
 
   $("#checkout").onclick = sendToWhatsApp;
-  $("#waFloat").onclick = sendToWhatsApp;
+
+  // ===== flotante: solo baja al carrito =====
+  $("#waFloat").onclick = ()=>{
+    const cartEl = document.getElementById("cartPanel");
+    if(!cartEl) return;
+    cartEl.scrollIntoView({ behavior: "smooth", block: "start" });
+
+    cartEl.animate(
+      [
+        { boxShadow: "0 0 0 rgba(0,0,0,0)" },
+        { boxShadow: "0 0 0 2px rgba(57,184,255,.7), 0 0 36px rgba(57,184,255,.35)" },
+        { boxShadow: "0 0 0 rgba(0,0,0,0)" }
+      ],
+      { duration: 700, easing: "ease-out" }
+    );
+  };
 
   function updateFloating(){
     const items = cart.reduce((s,x)=>s + x.qty, 0);
     const total = cart.reduce((s,x)=>s + x.price*x.qty, 0);
     $("#waBadge").textContent = `${items} item${items===1?"":"s"} • ${money(total)}`;
-    $("#waFloat").style.opacity = cart.length ? "1" : "0.65";
+
+    const btn = $("#waFloat");
+    if(items > 0){
+      btn.style.opacity = "1";
+      btn.style.pointerEvents = "auto";
+      btn.style.transform = "translateX(-50%) translateY(0)";
+    } else {
+      btn.style.opacity = "0";
+      btn.style.pointerEvents = "none";
+      btn.style.transform = "translateX(-50%) translateY(10px)";
+    }
   }
 
-  // ===== Base pills =====
+  // ===== Base pills & filtros =====
   function setBase(v){
     baseFilter = v;
     catFilter = "Todo";
     subFilter = "all";
     renderAll();
   }
-
   $("#baseAll").onclick = ()=>setBase("all");
   $("#baseCafe").onclick = ()=>setBase("Cafetería");
   $("#baseRef").onclick = ()=>setBase("Refresquería");
