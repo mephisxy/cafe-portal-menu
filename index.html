@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Café Portal — Menú Interactivo</title>
+
   <style>
     :root{
       --bg:#050712;
@@ -13,6 +14,10 @@
       --accent2:#7c4dff;
       --shadow: 0 18px 60px rgba(0,0,0,.45);
       --radius:18px;
+
+      /* ✅ Tamaño automático del título */
+      --brand-size: clamp(20px, 4.8vw, 28px);
+      --brand-letter: clamp(2.2px, 0.7vw, 3.6px);
     }
     *{box-sizing:border-box}
     body{
@@ -62,6 +67,7 @@
       border:1px solid rgba(57,184,255,.35);
       box-shadow: 0 0 0 1px rgba(124,77,255,.25) inset, 0 0 26px rgba(57,184,255,.25);
       position:relative; overflow:hidden;
+      flex: 0 0 auto;
     }
     .logo:after{
       content:"";
@@ -72,6 +78,20 @@
       opacity:.85;
     }
     @keyframes spin{to{transform:rotate(360deg)}}
+
+    .brandTitle{
+      margin:0;
+      font-size: var(--brand-size);
+      letter-spacing: var(--brand-letter);
+      text-transform:uppercase;
+      text-shadow:0 0 18px rgba(57,184,255,.45),0 0 42px rgba(57,184,255,.20);
+      font-weight:1000;
+      line-height:1.05;
+      white-space:nowrap;
+    }
+    @media (max-width: 360px){
+      .brandTitle{ white-space:normal; }
+    }
 
     .controls{display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:flex-end; flex:1;}
     .search{
@@ -235,7 +255,6 @@
       letter-spacing:1px;
       font-weight:900;
     }
-    /* COLORES DE TAGS */
     .tag.hot{border-color: rgba(255,204,102,.5); color: rgba(255,204,102,.95)}
     .tag.cold{border-color: rgba(57,184,255,.55); color: rgba(57,184,255,.95)}
     .tag.frappe{border-color: rgba(124,77,255,.55); color: rgba(124,77,255,.95)}
@@ -349,7 +368,6 @@
       text-transform:uppercase;
       letter-spacing:1.6px;
 
-      /* oculto por defecto: aparece solo cuando hay items */
       opacity: 0;
       pointer-events: none;
       transform: translateX(-50%) translateY(10px);
@@ -368,6 +386,40 @@
       opacity:.95;
       white-space:nowrap;
       font-weight:900;
+    }
+
+    /* ===== Cart tabs ===== */
+    .cartTabs{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px}
+    .cartTabBtn{
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid rgba(26,37,80,.8);
+      background: rgba(11,16,36,.65);
+      color: rgba(234,240,255,.9);
+      cursor:pointer;
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:1.2px;
+      font-weight:1000;
+      transition: transform .08s ease, border-color .15s ease, background .15s ease;
+    }
+    .cartTabBtn:hover{transform:translateY(-1px); border-color: rgba(57,184,255,.55)}
+    .cartTabBtn.active{
+      border-color: rgba(57,184,255,.75);
+      background: linear-gradient(135deg, rgba(57,184,255,.18), rgba(124,77,255,.14));
+      box-shadow: 0 0 0 1px rgba(57,184,255,.14) inset, 0 0 24px rgba(57,184,255,.10);
+    }
+    .cartView{display:block}
+    .nameView{display:none}
+    .input{
+      width:100%;
+      margin-top:6px;
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid rgba(26,37,80,.75);
+      background: rgba(5,7,18,.45);
+      color: rgba(234,240,255,.92);
+      outline:none;
     }
 
     /* ===== Custom Modal (Android-safe) ===== */
@@ -448,12 +500,7 @@
         <div class="brand">
           <div class="logo" aria-hidden="true"></div>
           <div>
-            <h1 style="margin:0;font-size:18px;letter-spacing:2.2px;text-transform:uppercase;text-shadow:0 0 14px rgba(57,184,255,.40),0 0 32px rgba(57,184,255,.18);font-weight:1000;">
-              CAFÉ PORTAL
-            </h1>
-            <div class="hint" style="margin-top:4px; text-transform:uppercase; letter-spacing:1px;">
-              Menú interactivo • toca para agregar • pedido directo a WhatsApp
-            </div>
+            <h1 class="brandTitle">CAFÉ PORTAL</h1>
           </div>
         </div>
 
@@ -497,6 +544,9 @@
           <div class="hint" style="margin-top:12px; line-height:1.4">
             <strong>Sabores (Cafetería):</strong> vainilla, caramelo, mocca, crema irlandesa, avellana.
           </div>
+          <div class="hint" style="margin-top:6px; line-height:1.4">
+            <strong>Sabores (Limonada de sabor):</strong> frutos rojos, fresa, mango, pepino.
+          </div>
         </div>
       </section>
 
@@ -504,15 +554,34 @@
         <h2>Carrito</h2>
         <div class="cartbox">
           <div class="hint">Toca un precio para agregar. Puedes anotar “sin azúcar”, etc.</div>
-          <div class="cartlist" id="cartlist"></div>
 
-          <div class="totals">
-            <div><strong>Total</strong></div>
-            <div><strong id="total">$0</strong></div>
+          <div class="cartTabs">
+            <button class="cartTabBtn active" id="tabOrder" type="button">Pedido</button>
+            <button class="cartTabBtn" id="tabName" type="button">Tu nombre</button>
           </div>
 
-          <button class="checkout" id="checkout" type="button">Enviar pedido por WhatsApp</button>
-          <button class="danger" id="clearCart" type="button">Vaciar carrito</button>
+          <div class="cartView" id="cartView">
+            <div class="cartlist" id="cartlist"></div>
+
+            <div class="totals">
+              <div><strong>Total</strong></div>
+              <div><strong id="total">$0</strong></div>
+            </div>
+
+            <button class="checkout" id="checkout" type="button">Enviar pedido por WhatsApp</button>
+            <button class="danger" id="clearCart" type="button">Vaciar carrito</button>
+          </div>
+
+          <div class="nameView" id="nameView">
+            <div style="margin-top:10px">
+              <label>Nombre del cliente</label>
+              <input id="customerName" class="input" type="text" placeholder="Ej: Jesús" maxlength="40" />
+              <div class="hint" style="margin-top:8px; line-height:1.35">
+                Este nombre se enviará al inicio del pedido por WhatsApp.
+              </div>
+            </div>
+          </div>
+
         </div>
       </aside>
     </div>
@@ -540,10 +609,16 @@
           </div>
         </div>
 
-        <!-- Sabor (solo cafetería) -->
-        <div id="flavorWrap" style="margin-top:10px; display:none">
+        <!-- Sabor cafetería -->
+        <div id="flavorWrapCafe" style="margin-top:10px; display:none">
           <label>Sabor (Cafetería)</label>
-          <select id="mFlavor"></select>
+          <select id="mFlavorCafe"></select>
+        </div>
+
+        <!-- Sabor limonada -->
+        <div id="flavorWrapLemon" style="margin-top:10px; display:none">
+          <label>Sabor (Limonada)</label>
+          <select id="mFlavorLemon"></select>
         </div>
 
         <div style="margin-top:10px">
@@ -554,7 +629,7 @@
 
         <div style="margin-top:10px">
           <label>Notas (opcional)</label>
-          <textarea id="mNotes" placeholder="Ej: sin azúcar, leche deslactosada, etc."></textarea>
+          <textarea id="mNotes" placeholder="Ej: sin azúcar, hielo extra, etc."></textarea>
         </div>
       </div>
       <div class="modalActions">
@@ -586,7 +661,15 @@
       .toLowerCase();
   }
 
-  const FLAVORS = ["Sin sabor", "Vainilla", "Caramelo", "Mocca", "Crema irlandesa", "Avellana"];
+  const FLAVORS_CAFE = ["Sin sabor", "Vainilla", "Caramelo", "Mocca", "Crema irlandesa", "Avellana"];
+  const FLAVORS_LEMON = ["Frutos rojos", "Fresa", "Mango", "Pepino"];
+
+  // Nombre cliente (persistente)
+  const NAME_KEY = "cafePortal_customerName";
+  let customerName = (localStorage.getItem(NAME_KEY) || "").trim();
+
+  // ✅ ID del producto que debe tener selector de sabor para limonada
+  const LEMON_FLAVOR_ITEM_ID = "r_sp_lim_sab";
 
   const MENU = [
     { id:"c_hot_ame", baseCat:"Cafetería", subCat:"Caliente", name:"Americano", desc:"Café caliente.", tags:["hot"], sizes:{ "12 oz":40, "16 oz":50 } },
@@ -616,7 +699,7 @@
     { id:"r_cla_root", baseCat:"Refresquería", subCat:null, name:"Root Beer", desc:"Bebida clásica.", tags:["cold"], sizes:{ "20 oz":40, "32 oz":50 } },
     { id:"r_cla_sifon", baseCat:"Refresquería", subCat:null, name:"Sifón", desc:"Bebida clásica.", tags:["cold"], sizes:{ "20 oz":40, "32 oz":50 } },
 
-    { id:"r_sp_lim_sab", baseCat:"Refresquería", subCat:null, name:"Limonada (sabores)", desc:"Fresa / frutos rojos / mango / pepino.", tags:["cold","special"], sizes:{ "12 oz":50, "16 oz":60 } },
+    { id:"r_sp_lim_sab", baseCat:"Refresquería", subCat:null, name:"Limonada (sabores)", desc:"Elige: frutos rojos, fresa, mango o pepino.", tags:["cold","special"], sizes:{ "12 oz":50, "16 oz":60 } },
     { id:"r_sp_limona", baseCat:"Refresquería", subCat:null, name:"Limonagría", desc:"Especial refresquería.", tags:["cold","special"], sizes:{ "12 oz":50, "16 oz":60 } },
     { id:"r_sp_soda", baseCat:"Refresquería", subCat:null, name:"Soda italiana", desc:"Especial refresquería.", tags:["cold","special"], sizes:{ "12 oz":50, "16 oz":60 } },
 
@@ -785,7 +868,6 @@
   let modalItem = null;
 
   function extrasOptions(item){
-    // cafetería: agrega extra shot
     if(item?.baseCat === "Cafetería"){
       return ["Sin extras", "Con extra (+10)", "Extra shot (+10)"];
     }
@@ -804,27 +886,36 @@
       .map(([s,p])=>`<option value="${s}">${s} — ${money(p)}</option>`).join("");
     if(preSize) sizeSel.value = preSize;
 
-    // Opción (para casos especiales como Chai frío/caliente)
     const optSel = $("#mOption");
     const options = modalItem.options?.length ? modalItem.options : ["Normal"];
     optSel.innerHTML = options.map(o=>`<option value="${o}">${o}</option>`).join("");
 
-    // Sabor (solo cafetería)
-    const flavorWrap = $("#flavorWrap");
-    const flavorSel = $("#mFlavor");
+    // Cafetería flavor
+    const cafeWrap = $("#flavorWrapCafe");
+    const cafeSel = $("#mFlavorCafe");
     if(modalItem.baseCat === "Cafetería"){
-      flavorWrap.style.display = "block";
-      flavorSel.innerHTML = FLAVORS.map(f=>`<option value="${f}">${f}</option>`).join("");
-      flavorSel.value = "Sin sabor";
+      cafeWrap.style.display = "block";
+      cafeSel.innerHTML = FLAVORS_CAFE.map(f=>`<option value="${f}">${f}</option>`).join("");
+      cafeSel.value = "Sin sabor";
     } else {
-      flavorWrap.style.display = "none";
-      flavorSel.innerHTML = "";
+      cafeWrap.style.display = "none";
+      cafeSel.innerHTML = "";
     }
 
-    // Extras según categoría
+    // Limonada flavor (solo para limonada de sabor)
+    const lemonWrap = $("#flavorWrapLemon");
+    const lemonSel = $("#mFlavorLemon");
+    if(modalItem.id === LEMON_FLAVOR_ITEM_ID){
+      lemonWrap.style.display = "block";
+      lemonSel.innerHTML = FLAVORS_LEMON.map(f=>`<option value="${f}">${f}</option>`).join("");
+      lemonSel.value = FLAVORS_LEMON[0];
+    } else {
+      lemonWrap.style.display = "none";
+      lemonSel.innerHTML = "";
+    }
+
     const extSel = $("#mExtras");
     extSel.innerHTML = extrasOptions(modalItem).map(e=>`<option value="${e}">${e}</option>`).join("");
-
     $("#extrasHint").textContent = (modalItem.baseCat === "Cafetería")
       ? "“Con extra” (+$10) • “Extra shot” (+$10)"
       : "“Con extra” suma +$10.";
@@ -839,7 +930,7 @@
   $("#modalOverlay").addEventListener("click", (e)=>{ if(e.target.id === "modalOverlay") closeModal(); });
 
   // ===== Carrito =====
-  function addToCart(item, size, option, flavor, extras, notes){
+  function addToCart(item, size, option, flavorLabel, extras, notes){
     const basePrice = item.sizes[size] ?? 0;
     const extraPrice = Number((extras?.match(/\+(\d+)/)?.[1]) || 0);
     const price = basePrice + extraPrice;
@@ -847,9 +938,7 @@
     const safeNotes = String(notes || "").replace(/\s+/g, " ").trim();
     const safeExtras = String(extras || "Sin extras").trim();
     const safeOption = String(option || "Normal").trim();
-    const safeFlavor = (item.baseCat === "Cafetería")
-      ? String(flavor || "Sin sabor").trim()
-      : "";
+    const safeFlavor = String(flavorLabel || "").trim(); // puede ser café o limonada
 
     const key = [item.id, size, safeOption, safeFlavor, safeExtras, safeNotes].join("|");
 
@@ -888,7 +977,7 @@
       const div = document.createElement("div");
       div.className = "lineitem";
 
-      const flavorText = (c.flavor && c.flavor !== "Sin sabor") ? ` • ${c.flavor}` : "";
+      const flavorText = c.flavor ? ` • ${c.flavor}` : "";
       const extrasText = (c.extras && c.extras!=="Sin extras") ? ` • ${c.extras}` : "";
       const notesText = c.notes ? ` • ${c.notes}` : "";
 
@@ -942,10 +1031,19 @@
     if(!modalItem) return;
     const size = $("#mSize").value;
     const option = $("#mOption").value;
-    const flavor = $("#mFlavor").value;
+
+    // elegir flavor según tipo
+    let flavorLabel = "";
+    if(modalItem.baseCat === "Cafetería"){
+      const f = $("#mFlavorCafe").value;
+      flavorLabel = (f && f !== "Sin sabor") ? f : "";
+    } else if(modalItem.id === LEMON_FLAVOR_ITEM_ID){
+      flavorLabel = $("#mFlavorLemon").value || "";
+    }
+
     const extras = $("#mExtras").value;
     const notes = $("#mNotes").value.trim();
-    addToCart(modalItem, size, option, flavor, extras, notes);
+    addToCart(modalItem, size, option, flavorLabel, extras, notes);
     closeModal();
   };
 
@@ -957,13 +1055,34 @@
     renderCart();
   };
 
+  // ===== Cart tabs logic =====
+  function setCartTab(tab){
+    $("#tabOrder").classList.toggle("active", tab==="order");
+    $("#tabName").classList.toggle("active", tab==="name");
+    $("#cartView").style.display = (tab==="order") ? "block" : "none";
+    $("#nameView").style.display = (tab==="name") ? "block" : "none";
+  }
+  $("#tabOrder").onclick = ()=>setCartTab("order");
+  $("#tabName").onclick = ()=>setCartTab("name");
+
+  // Nombre input
+  const nameInput = document.getElementById("customerName");
+  if(nameInput){
+    nameInput.value = customerName;
+    nameInput.addEventListener("input", ()=>{
+      customerName = nameInput.value.trim();
+      localStorage.setItem(NAME_KEY, customerName);
+    });
+  }
+
   // ===== WhatsApp =====
   function buildOrderText(){
     const lines = [];
     lines.push("Pedido — CAFÉ PORTAL");
+    if(customerName) lines.push("Nombre: " + customerName);
     lines.push("—");
     cart.forEach(c=>{
-      const flavor = (c.flavor && c.flavor !== "Sin sabor") ? ` • ${c.flavor}` : "";
+      const flavor = c.flavor ? ` • ${c.flavor}` : "";
       const extras = (c.extras && c.extras!=="Sin extras") ? ` • ${c.extras}` : "";
       const notes = c.notes ? ` • ${c.notes}` : "";
       lines.push(`${c.qty}× ${c.name} (${c.size}) • ${c.option}${flavor}${extras}${notes} = ${money(c.price*c.qty)}`);
@@ -974,15 +1093,27 @@
     return lines.join("\n");
   }
 
+  // ✅ ALERTA ACTIVADA: si no hay nombre, pide agregarlo y manda a pestaña "Tu nombre"
   function sendToWhatsApp(){
     if(!cart.length){
       alert("Tu carrito está vacío 🙂");
       return;
     }
+
+    if(!customerName){
+      const go = confirm("Antes de enviar, escribe tu nombre.\n\n¿Quieres agregar tu nombre ahora?");
+      if(go){
+        setCartTab("name");
+        document.getElementById("cartPanel")?.scrollIntoView({ behavior:"smooth", block:"start" });
+        setTimeout(()=> document.getElementById("customerName")?.focus(), 250);
+      }
+      return;
+    }
+
     const items = cart.reduce((s,x)=>s + x.qty, 0);
     const total = cart.reduce((s,x)=>s + x.price*x.qty, 0);
 
-    const ok = confirm(`¿Enviar pedido por WhatsApp?\n\nItems: ${items}\nTotal: ${money(total)}`);
+    const ok = confirm(`¿Enviar pedido por WhatsApp?\n\nNombre: ${customerName}\nItems: ${items}\nTotal: ${money(total)}`);
     if(!ok) return;
 
     const text = buildOrderText();
@@ -1111,6 +1242,7 @@
   })();
 
   // init
+  setCartTab("order");
   updateFloating();
   renderAll();
 </script>
