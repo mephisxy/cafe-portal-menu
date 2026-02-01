@@ -7,67 +7,58 @@
   <style>
     :root{
       --bg:#050712;
-      --card:#0b1024;
-      --muted:#8aa0ff;
       --text:#eaf0ff;
       --line:#1a2550;
       --accent:#39b8ff;
       --accent2:#7c4dff;
-      --good:#2cf6c4;
       --shadow: 0 18px 60px rgba(0,0,0,.45);
       --radius:18px;
     }
     *{box-sizing:border-box}
-
-    /* ===== Fondo estrellas (canvas) ===== */
-    #starfield{
-      position:fixed;
-      inset:0;
-      z-index:-2;
-      width:100%;
-      height:100%;
-      pointer-events:none;
-      opacity:.85;
-    }
-
-    /* Glow suave extra (detrás del contenido) */
-    .bg-glow{
-      position:fixed;
-      inset:-20%;
-      z-index:-3;
-      background:
-        radial-gradient(1200px 800px at 20% 10%, rgba(57,184,255,.18), transparent 55%),
-        radial-gradient(900px 600px at 80% 20%, rgba(124,77,255,.18), transparent 60%),
-        radial-gradient(800px 700px at 55% 90%, rgba(44,246,196,.10), transparent 60%),
-        var(--bg);
-      filter:saturate(1.15);
-    }
-
     body{
       margin:0;
       font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
       color:var(--text);
       min-height:100vh;
-      padding-bottom: 84px; /* espacio para botón flotante */
-      background: transparent;
+      padding-bottom: 84px;
+      background: var(--bg);
+      overflow-x:hidden;
+    }
+
+    /* ===== Starfield canvas ===== */
+    #stars{
+      position:fixed; inset:0;
+      z-index:-3;
+      width:100%;
+      height:100%;
+      display:block;
+      background: radial-gradient(1200px 800px at 20% 10%, rgba(57,184,255,.16), transparent 55%),
+                  radial-gradient(900px 600px at 80% 20%, rgba(124,77,255,.16), transparent 60%),
+                  radial-gradient(800px 700px at 55% 90%, rgba(44,246,196,.08), transparent 60%),
+                  var(--bg);
+    }
+    body:before{
+      content:"";
+      position:fixed; inset:0;
+      pointer-events:none;
+      z-index:-2;
+      background: radial-gradient(circle at 50% 30%, rgba(0,0,0,.0), rgba(0,0,0,.55) 70%, rgba(0,0,0,.75) 100%);
     }
 
     header{
       position:sticky; top:0; z-index:50;
-      backdrop-filter: blur(12px);
-      background: linear-gradient(to bottom, rgba(5,7,18,.94), rgba(5,7,18,.55));
+      backdrop-filter: blur(10px);
+      background: linear-gradient(to bottom, rgba(5,7,18,.92), rgba(5,7,18,.55));
       border-bottom:1px solid rgba(26,37,80,.6);
     }
 
     .wrap{max-width:1150px; margin:0 auto; padding:18px 16px}
     .top{display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap;}
-
     .brand{display:flex; align-items:center; gap:12px; user-select:none;}
     .logo{
       width:44px; height:44px; border-radius:14px;
-      background:
-        radial-gradient(circle at 30% 30%, rgba(57,184,255,.9), rgba(124,77,255,.7) 45%, rgba(44,246,196,.35) 75%, rgba(0,0,0,.0) 76%),
-        linear-gradient(135deg, rgba(57,184,255,.35), rgba(124,77,255,.15));
+      background: radial-gradient(circle at 30% 30%, rgba(57,184,255,.9), rgba(124,77,255,.7) 45%, rgba(44,246,196,.35) 75%, rgba(0,0,0,.0) 76%),
+                  linear-gradient(135deg, rgba(57,184,255,.35), rgba(124,77,255,.15));
       border:1px solid rgba(57,184,255,.35);
       box-shadow: 0 0 0 1px rgba(124,77,255,.25) inset, 0 0 26px rgba(57,184,255,.25);
       position:relative; overflow:hidden;
@@ -82,44 +73,7 @@
     }
     @keyframes spin{to{transform:rotate(360deg)}}
 
-    /* ===== Header tipo póster ===== */
-    .portalTitle{
-      margin:0;
-      font-weight:1000;
-      letter-spacing:2.6px;
-      text-transform:uppercase;
-      font-size:18px;
-      text-shadow: 0 0 14px rgba(57,184,255,.40), 0 0 32px rgba(57,184,255,.18);
-      line-height:1.05;
-    }
-    .sub{
-      font-size:12px;
-      color:rgba(234,240,255,.72);
-      margin-top:4px;
-      letter-spacing:1px;
-      text-transform:uppercase;
-    }
-
-    /* Separador brillante (estilo póster) */
-    .glow-divider{
-      height:1px;
-      width:100%;
-      margin-top:12px;
-      background: linear-gradient(90deg,
-        rgba(57,184,255,0),
-        rgba(57,184,255,.55),
-        rgba(124,77,255,.45),
-        rgba(57,184,255,.55),
-        rgba(57,184,255,0)
-      );
-      box-shadow: 0 0 18px rgba(57,184,255,.18);
-      opacity:.9;
-    }
-
-    .controls{
-      display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:flex-end;
-      flex:1;
-    }
+    .controls{display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:flex-end; flex:1;}
     .search{
       flex:1; min-width:230px;
       display:flex; align-items:center; gap:10px;
@@ -129,11 +83,7 @@
       border-radius:14px;
       box-shadow: 0 0 0 1px rgba(57,184,255,.08) inset;
     }
-    .search input{
-      width:100%;
-      background:transparent; border:0; outline:0;
-      color:var(--text); font-size:14px;
-    }
+    .search input{width:100%; background:transparent; border:0; outline:0; color:var(--text); font-size:14px;}
 
     .pill{
       display:inline-flex; align-items:center; gap:8px;
@@ -141,7 +91,7 @@
       border-radius:999px;
       border:1px solid rgba(26,37,80,.8);
       background: rgba(11,16,36,.65);
-      color:rgba(234,240,255,.92);
+      color:rgba(234,240,255,.9);
       font-size:13px;
       cursor:pointer;
       user-select:none;
@@ -154,7 +104,23 @@
     .pill.active{
       border-color: rgba(57,184,255,.75);
       background: linear-gradient(135deg, rgba(57,184,255,.18), rgba(124,77,255,.14));
-      box-shadow: 0 0 0 1px rgba(57,184,255,.18) inset, 0 0 24px rgba(57,184,255,.12);
+      box-shadow: 0 0 0 1px rgba(57,184,255,.14) inset, 0 0 24px rgba(57,184,255,.12);
+    }
+
+    .heroTitle{
+      font-size:24px;
+      font-weight:1000;
+      letter-spacing:3.2px;
+      text-transform:uppercase;
+      margin:0 0 12px;
+      text-align:center;
+      color: rgba(234,240,255,.92);
+      text-shadow: 0 0 18px rgba(57,184,255,.35), 0 0 36px rgba(57,184,255,.18);
+    }
+    .heroLine{
+      height:2px; margin:0 auto 12px; width:min(720px, 100%);
+      background: linear-gradient(90deg, rgba(57,184,255,0), rgba(57,184,255,.75), rgba(124,77,255,.65), rgba(57,184,255,.75), rgba(57,184,255,0));
+      box-shadow: 0 0 18px rgba(57,184,255,.16);
     }
 
     .grid{
@@ -167,39 +133,32 @@
     @media (max-width: 1050px){ .grid{grid-template-columns: 1fr; } }
 
     .panel{
-      background: rgba(11,16,36,.62);
+      background: rgba(11,16,36,.58);
       border:1px solid rgba(26,37,80,.7);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
       overflow:hidden;
       position:relative;
     }
-    /* línea brillante dentro del panel */
     .panel:before{
       content:"";
       position:absolute;
-      left:12px; right:12px; top:44px;
-      height:1px;
-      background: linear-gradient(90deg,
-        rgba(57,184,255,0),
-        rgba(57,184,255,.45),
-        rgba(124,77,255,.35),
-        rgba(57,184,255,.45),
-        rgba(57,184,255,0)
-      );
-      opacity:.7;
+      left:14px; right:14px; top:52px;
+      height:2px;
+      background: linear-gradient(90deg, rgba(57,184,255,0), rgba(57,184,255,.65), rgba(124,77,255,.55), rgba(57,184,255,.65), rgba(57,184,255,0));
+      opacity:.9;
+      pointer-events:none;
     }
-
     .panel h2{
       font-size:13px;
       text-transform:uppercase;
-      letter-spacing:1.6px;
-      color:rgba(234,240,255,.82);
+      color:rgba(234,240,255,.78);
       margin:0;
       padding:14px 14px 12px;
-      border-bottom:1px solid rgba(26,37,80,.65);
-      background: linear-gradient(to bottom, rgba(11,16,36,.88), rgba(11,16,36,.35));
+      border-bottom:1px solid rgba(26,37,80,.45);
+      background: linear-gradient(to bottom, rgba(11,16,36,.85), rgba(11,16,36,.25));
       text-shadow: 0 0 14px rgba(57,184,255,.22);
+      letter-spacing:1.4px;
       font-weight:900;
     }
 
@@ -211,7 +170,7 @@
       border-radius:14px;
       border:1px solid transparent;
       background: transparent;
-      color:rgba(234,240,255,.92);
+      color:rgba(234,240,255,.9);
       cursor:pointer;
       display:flex; justify-content:space-between; align-items:center;
       text-transform:uppercase;
@@ -225,29 +184,21 @@
       box-shadow: 0 0 22px rgba(57,184,255,.10);
     }
     .badge{
-      font-size:12px; color:rgba(234,240,255,.75);
+      font-size:12px; color:rgba(234,240,255,.7);
       border:1px solid rgba(26,37,80,.7);
       padding:3px 8px; border-radius:999px;
       background: rgba(5,7,18,.35);
+      letter-spacing:.4px;
       text-transform:none;
-      letter-spacing:.2px;
-      font-weight:800;
+      font-weight:900;
     }
 
     .content{padding:14px}
     .sectiontitle{
       display:flex; justify-content:space-between; align-items:center; gap:10px;
-      margin-bottom:10px;
-      flex-wrap:wrap;
+      margin-bottom:10px; flex-wrap:wrap;
     }
-    .sectiontitle h3{
-      margin:0;
-      font-size:16px;
-      text-transform:uppercase;
-      letter-spacing:1.6px;
-      text-shadow: 0 0 14px rgba(57,184,255,.22);
-      font-weight:1000;
-    }
+    .sectiontitle h3{margin:0; font-size:16px; text-transform:uppercase; letter-spacing:1.6px; text-shadow: 0 0 16px rgba(57,184,255,.22); font-weight:1000;}
     .hint{font-size:12px; color:rgba(234,240,255,.65)}
     .subtabs{display:flex; gap:8px; flex-wrap:wrap;}
 
@@ -264,17 +215,7 @@
       border:1px solid rgba(26,37,80,.75);
       border-radius: 18px;
       padding:12px;
-      position:relative;
-      overflow:hidden;
       transition: transform .10s ease, border-color .15s ease, background .15s ease;
-    }
-    .item:after{
-      content:"";
-      position:absolute;
-      inset:-2px;
-      background: radial-gradient(400px 120px at 20% 10%, rgba(57,184,255,.10), transparent 55%);
-      pointer-events:none;
-      opacity:.9;
     }
     .item:hover{
       transform: translateY(-2px);
@@ -292,20 +233,15 @@
       color: rgba(234,240,255,.78);
       text-transform:uppercase;
       letter-spacing:1px;
-      font-weight:800;
+      font-weight:900;
     }
+    /* COLORES DE TAGS */
     .tag.hot{border-color: rgba(255,204,102,.5); color: rgba(255,204,102,.95)}
     .tag.cold{border-color: rgba(57,184,255,.55); color: rgba(57,184,255,.95)}
     .tag.frappe{border-color: rgba(124,77,255,.55); color: rgba(124,77,255,.95)}
     .tag.special{border-color: rgba(44,246,196,.45); color: rgba(44,246,196,.95)}
 
-    .name{
-      font-weight:1000;
-      margin:0 0 6px;
-      font-size:15px;
-      text-transform:uppercase;
-      letter-spacing:1.4px;
-    }
+    .name{font-weight:1000; margin:0 0 6px; font-size:15px; text-transform:uppercase; letter-spacing:1.3px;}
     .desc{margin:0 0 10px; font-size:12px; color:rgba(234,240,255,.68); line-height:1.35}
 
     .prices{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
@@ -318,9 +254,8 @@
       cursor:pointer;
       font-size:13px;
       display:inline-flex; align-items:center; gap:8px;
-      box-shadow: 0 0 22px rgba(57,184,255,.08);
       text-transform:uppercase;
-      letter-spacing:1.2px;
+      letter-spacing:1px;
       font-weight:900;
     }
     .pricebtn:hover{border-color: rgba(57,184,255,.55)}
@@ -336,7 +271,7 @@
       border:1px solid rgba(26,37,80,.7);
       background: rgba(5,7,18,.35);
     }
-    .li-title{font-size:13px; font-weight:1000; margin:0; text-transform:uppercase; letter-spacing:1.1px}
+    .li-title{font-size:13px; font-weight:1000; margin:0; text-transform:uppercase; letter-spacing:1.2px;}
     .li-sub{font-size:12px; color:rgba(234,240,255,.65); margin-top:2px}
     .li-actions{display:flex; gap:8px; align-items:center}
     .mini{
@@ -357,7 +292,7 @@
       border-top:1px solid rgba(26,37,80,.65);
       color: rgba(234,240,255,.9);
       text-transform:uppercase;
-      letter-spacing:1.2px;
+      letter-spacing:1.1px;
       font-weight:900;
     }
     .checkout{
@@ -373,82 +308,21 @@
       text-transform:uppercase;
       letter-spacing:1.6px;
     }
-    .checkout:hover{box-shadow: 0 0 0 1px rgba(57,184,255,.2) inset, 0 0 30px rgba(57,184,255,.12)}
-
-    dialog{
-      border:1px solid rgba(26,37,80,.75);
-      border-radius: 18px;
-      background: rgba(11,16,36,.92);
-      color: var(--text);
-      box-shadow: var(--shadow);
-      width:min(560px, 92vw);
-      padding:0;
-    }
-    dialog::backdrop{background: rgba(0,0,0,.55)}
-    .modalHead{
-      padding:14px 14px 10px;
-      border-bottom:1px solid rgba(26,37,80,.65);
-      display:flex; align-items:flex-start; justify-content:space-between; gap:10px;
-    }
-    .modalTitle{margin:0; font-size:16px; font-weight:1000; text-transform:uppercase; letter-spacing:1.6px}
-    .close{
-      width:34px; height:34px; border-radius:12px;
-      border:1px solid rgba(26,37,80,.8);
-      background: rgba(5,7,18,.35);
-      color: rgba(234,240,255,.9);
-      cursor:pointer;
-      display:grid; place-items:center;
-      font-weight:1000;
-    }
-    .close:hover{border-color: rgba(57,184,255,.55)}
-    .modalBody{padding:14px}
-    .row{display:flex; gap:10px; flex-wrap:wrap}
-    select, textarea{
+    .danger{
+      margin-top:10px;
       width:100%;
-      margin-top:6px;
       padding:10px 12px;
       border-radius:14px;
-      border:1px solid rgba(26,37,80,.75);
-      background: rgba(5,7,18,.45);
+      border:1px solid rgba(255,120,120,.45);
+      background: rgba(255,120,120,.08);
       color: rgba(234,240,255,.92);
-      outline:none;
-      text-transform:uppercase;
-      letter-spacing:1px;
-      font-weight:900;
-    }
-    textarea{
-      min-height:92px;
-      resize:vertical;
-      text-transform:none;
-      letter-spacing:.2px;
-      font-weight:600;
-    }
-    label{font-size:12px; color:rgba(234,240,255,.75); text-transform:uppercase; letter-spacing:1.2px; font-weight:900}
-    .modalActions{
-      padding:14px;
-      border-top:1px solid rgba(26,37,80,.65);
-      display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap;
-    }
-    .btn{
-      padding:10px 12px;
-      border-radius:14px;
-      border:1px solid rgba(26,37,80,.8);
-      background: rgba(5,7,18,.35);
-      color: rgba(234,240,255,.92);
-      cursor:pointer;
       font-weight:1000;
+      cursor:pointer;
       text-transform:uppercase;
-      letter-spacing:1.4px;
+      letter-spacing:1.2px;
     }
-    .btn.primary{
-      border-color: rgba(57,184,255,.6);
-      background: linear-gradient(135deg, rgba(57,184,255,.22), rgba(124,77,255,.18));
-    }
-    .btn:hover{border-color: rgba(57,184,255,.55)}
 
-    .footer{opacity:.65; font-size:12px; padding:22px 16px; text-align:center; text-transform:uppercase; letter-spacing:1.2px;}
-
-    /* ===== Botón flotante WhatsApp ===== */
+    /* ===== Floating WhatsApp ===== */
     #waFloat{
       position: fixed;
       left: 50%;
@@ -474,7 +348,7 @@
 
       box-shadow: 0 18px 60px rgba(0,0,0,.50);
       text-transform:uppercase;
-      letter-spacing:1.8px;
+      letter-spacing:1.6px;
     }
     #waFloat .left{display:flex; align-items:center; gap:10px;}
     #waFloat .wabadge{
@@ -484,18 +358,84 @@
       border-radius: 999px;
       padding: 4px 10px;
       font-size: 12px;
-      text-transform:none;
-      letter-spacing:.2px;
+      text-transform: none;
+      letter-spacing: .4px;
       opacity:.95;
+      white-space:nowrap;
       font-weight:900;
     }
-    #waFloat:active{ transform: translateX(-50%) scale(.99); }
+
+    /* ===== Custom Modal (Android-safe) ===== */
+    .modalOverlay{
+      position:fixed; inset:0;
+      background: rgba(0,0,0,.55);
+      display:none;
+      z-index: 10000;
+      padding: 18px;
+    }
+    .modalOverlay.open{display:flex; align-items:center; justify-content:center;}
+    .modal{
+      width: min(560px, 92vw);
+      border-radius: 18px;
+      border:1px solid rgba(26,37,80,.75);
+      background: rgba(11,16,36,.94);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .modalHead{
+      padding:14px 14px 10px;
+      border-bottom:1px solid rgba(26,37,80,.65);
+      display:flex; align-items:flex-start; justify-content:space-between; gap:10px;
+    }
+    .modalTitle{margin:0; font-size:16px; font-weight:1000; text-transform:uppercase; letter-spacing:1.6px}
+    .close{
+      width:34px; height:34px; border-radius:12px;
+      border:1px solid rgba(26,37,80,.8);
+      background: rgba(5,7,18,.35);
+      color: rgba(234,240,255,.9);
+      cursor:pointer;
+      display:grid; place-items:center;
+      font-weight:1000;
+    }
+    .modalBody{padding:14px}
+    .row{display:flex; gap:10px; flex-wrap:wrap}
+    label{font-size:12px; color:rgba(234,240,255,.75); text-transform:uppercase; letter-spacing:1.2px; font-weight:900;}
+    select, textarea{
+      width:100%;
+      margin-top:6px;
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid rgba(26,37,80,.75);
+      background: rgba(5,7,18,.45);
+      color: rgba(234,240,255,.92);
+      outline:none;
+    }
+    textarea{min-height:92px; resize:vertical}
+    .modalActions{
+      padding:14px;
+      border-top:1px solid rgba(26,37,80,.65);
+      display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap;
+    }
+    .btn{
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid rgba(26,37,80,.8);
+      background: rgba(5,7,18,.35);
+      color: rgba(234,240,255,.92);
+      cursor:pointer;
+      font-weight:1000;
+      text-transform:uppercase;
+      letter-spacing:1.2px;
+    }
+    .btn.primary{
+      border-color: rgba(57,184,255,.6);
+      background: linear-gradient(135deg, rgba(57,184,255,.22), rgba(124,77,255,.18));
+    }
   </style>
 </head>
 
 <body>
-  <div class="bg-glow" aria-hidden="true"></div>
-  <canvas id="starfield" aria-hidden="true"></canvas>
+  <canvas id="stars" aria-hidden="true"></canvas>
 
   <header>
     <div class="wrap">
@@ -503,8 +443,12 @@
         <div class="brand">
           <div class="logo" aria-hidden="true"></div>
           <div>
-            <p class="portalTitle" id="portalTitle">PORTAL — MENÚ</p>
-            <div class="sub">Toca para agregar • pedido directo a WhatsApp</div>
+            <h1 style="margin:0;font-size:18px;letter-spacing:2.2px;text-transform:uppercase;text-shadow:0 0 14px rgba(57,184,255,.40),0 0 32px rgba(57,184,255,.18);font-weight:1000;">
+              CAFÉ PORTAL
+            </h1>
+            <div class="hint" style="margin-top:4px; text-transform:uppercase; letter-spacing:1px;">
+              Menú interactivo • toca para agregar • pedido directo a WhatsApp
+            </div>
           </div>
         </div>
 
@@ -513,17 +457,19 @@
             <span style="opacity:.8">🔎</span>
             <input id="q" placeholder="Buscar: latte, limonada, dorilocos..." autocomplete="off"/>
           </div>
-          <button class="pill active" id="baseAll" data-base="all">Todo</button>
-          <button class="pill" id="baseCafe" data-base="Cafetería">Cafetería</button>
-          <button class="pill" id="baseRef" data-base="Refresquería">Refresquería</button>
-          <button class="pill" id="baseSnk" data-base="Snacks">Snacks</button>
+          <button class="pill active" id="baseAll" type="button">Todo</button>
+          <button class="pill" id="baseCafe" type="button">☕ Cafetería</button>
+          <button class="pill" id="baseRef" type="button">🧊 Refresquería</button>
+          <button class="pill" id="baseSnk" type="button">🍿 Snacks</button>
         </div>
       </div>
-      <div class="glow-divider"></div>
     </div>
   </header>
 
   <main class="wrap">
+    <h2 class="heroTitle" id="heroTitle">PORTAL MENÚ</h2>
+    <div class="heroLine"></div>
+
     <div class="grid">
       <aside class="panel">
         <h2>Categorías</h2>
@@ -544,11 +490,7 @@
           <div class="cards" id="cards"></div>
 
           <div class="hint" style="margin-top:12px; line-height:1.4">
-            <strong>Sabores (cafés):</strong> Vainilla • Crema irlandesa • Avellana • Caramelo • Mocca
-            <br/>
-            <strong>Extras (cafés y refresquería especial):</strong> $10 (cuando aplique)
-            <br/>
-            <strong>Extras generales:</strong> Chamoy • Miguelito • Salsa ($5–$10)
+            <strong>Extras:</strong> “Con extra” (+$10) disponible para todos los productos.
           </div>
         </div>
       </section>
@@ -556,63 +498,63 @@
       <aside class="panel cart">
         <h2>Carrito</h2>
         <div class="cartbox">
-          <div class="hint">Anota “sin azúcar”, “extra chamoy”, etc.</div>
+          <div class="hint">Toca un precio para agregar. Puedes anotar “sin azúcar”, etc.</div>
           <div class="cartlist" id="cartlist"></div>
+
           <div class="totals">
             <div><strong>Total</strong></div>
             <div><strong id="total">$0</strong></div>
           </div>
-          <button class="checkout" id="checkout">Enviar pedido por WhatsApp</button>
-          <div class="hint" style="margin-top:10px; line-height:1.35">
-            Dirección: Gral. Piña 197B, Col. Balderrama
-          </div>
+
+          <button class="checkout" id="checkout" type="button">Enviar pedido por WhatsApp</button>
+          <button class="danger" id="clearCart" type="button">Vaciar carrito</button>
         </div>
       </aside>
     </div>
-
-    <div class="footer">© Café Portal — Cruza el portal</div>
   </main>
 
-  <!-- Modal -->
-  <dialog id="modal">
-    <div class="modalHead">
-      <div>
-        <p class="modalTitle" id="mTitle">Producto</p>
-        <div class="hint" id="mMeta"></div>
-      </div>
-      <button class="close" id="mClose" aria-label="Cerrar">✕</button>
-    </div>
-    <div class="modalBody">
-      <div class="row">
-        <div style="flex:1; min-width:180px">
-          <label>Tamaño</label>
-          <select id="mSize"></select>
+  <!-- Modal Android-safe -->
+  <div class="modalOverlay" id="modalOverlay">
+    <div class="modal" role="dialog" aria-modal="true">
+      <div class="modalHead">
+        <div>
+          <p class="modalTitle" id="mTitle">Producto</p>
+          <div class="hint" id="mMeta"></div>
         </div>
-        <div style="flex:1; min-width:180px">
-          <label>Opción</label>
-          <select id="mOption"></select>
+        <button class="close" id="mClose" type="button" aria-label="Cerrar">✕</button>
+      </div>
+      <div class="modalBody">
+        <div class="row">
+          <div style="flex:1; min-width:180px">
+            <label>Tamaño</label>
+            <select id="mSize"></select>
+          </div>
+          <div style="flex:1; min-width:180px">
+            <label>Opción</label>
+            <select id="mOption"></select>
+          </div>
+        </div>
+
+        <div style="margin-top:10px">
+          <label>Extras (opcional)</label>
+          <select id="mExtras"></select>
+          <div class="hint" style="margin-top:6px">“Con extra” suma +$10.</div>
+        </div>
+
+        <div style="margin-top:10px">
+          <label>Notas (opcional)</label>
+          <textarea id="mNotes" placeholder="Ej: sin azúcar, etc."></textarea>
         </div>
       </div>
-
-      <div style="margin-top:10px">
-        <label>Extras (opcional)</label>
-        <select id="mExtras"></select>
-        <div class="hint" style="margin-top:6px">Cuando aplique: extras $10.</div>
-      </div>
-
-      <div style="margin-top:10px">
-        <label>Notas (opcional)</label>
-        <textarea id="mNotes" placeholder="Ej: sin azúcar, leche deslactosada, extra chamoy..."></textarea>
+      <div class="modalActions">
+        <button class="btn" id="mCancel" type="button">Cancelar</button>
+        <button class="btn primary" id="mAdd" type="button">Agregar al carrito</button>
       </div>
     </div>
-    <div class="modalActions">
-      <button class="btn" id="mCancel">Cancelar</button>
-      <button class="btn primary" id="mAdd">Agregar</button>
-    </div>
-  </dialog>
+  </div>
 
   <!-- Botón flotante WhatsApp -->
-  <button id="waFloat" title="Enviar pedido por WhatsApp">
+  <button id="waFloat" type="button" title="Enviar pedido por WhatsApp">
     <span class="left">
       <span style="font-size:18px">💬</span>
       <span>Enviar pedido</span>
@@ -620,459 +562,492 @@
     <span class="wabadge" id="waBadge">0 items • $0</span>
   </button>
 
-  <script>
-    // ====== CONFIG WHATSAPP ======
-    const WHATSAPP_NUMBER = "526621448175";
+<script>
+  const WHATSAPP_NUMBER = "526621448175";
 
-    // ====== MENÚ ======
-    const MENU = [
-      // Cafetería - Calientes
-      { id:"c_hot_ame", baseCat:"Cafetería", subCat:"Caliente", name:"Americano", desc:"Café caliente.", tags:["hot"], sizes:{ "12 oz":40, "16 oz":50 }, extrasRule:"coffee" },
-      { id:"c_hot_cap", baseCat:"Cafetería", subCat:"Caliente", name:"Capuccino", desc:"Espuma y carácter.", tags:["hot"], sizes:{ "12 oz":40, "16 oz":50 }, extrasRule:"coffee" },
-      { id:"c_hot_lat", baseCat:"Cafetería", subCat:"Caliente", name:"Latte", desc:"Cremoso y suave.", tags:["hot"], sizes:{ "12 oz":40, "16 oz":50 }, extrasRule:"coffee" },
-      { id:"c_hot_fw",  baseCat:"Cafetería", subCat:"Caliente", name:"Flat White", desc:"Intenso, balanceado.", tags:["hot"], sizes:{ "12 oz":40, "16 oz":50 }, extrasRule:"coffee" },
+  const $ = (sel)=>document.querySelector(sel);
+  const money = (n)=>"$" + Number(n).toFixed(0);
 
-      // Cafetería - Fríos
-      { id:"c_cold_ame", baseCat:"Cafetería", subCat:"Frío", name:"Americano (frío)", desc:"Café frío.", tags:["cold"], sizes:{ "12 oz":50, "16 oz":60 }, extrasRule:"coffee" },
-      { id:"c_cold_lat", baseCat:"Cafetería", subCat:"Frío", name:"Latte (frío)", desc:"Latte helado.", tags:["cold"], sizes:{ "12 oz":50, "16 oz":60 }, extrasRule:"coffee" },
-      { id:"c_cold_cap", baseCat:"Cafetería", subCat:"Frío", name:"Capuccino (frío)", desc:"Versión fría.", tags:["cold"], sizes:{ "12 oz":50, "16 oz":60 }, extrasRule:"coffee" },
+  function norm(s){
+    return String(s || "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase();
+  }
 
-      // Cafetería - Frappés
-      { id:"c_fra_cafe", baseCat:"Cafetería", subCat:"Frappé", name:"Frappe Café", desc:"Frappé base café.", tags:["frappe"], sizes:{ "12 oz":55, "16 oz":65 }, extrasRule:"none" },
-      { id:"c_fra_moc",  baseCat:"Cafetería", subCat:"Frappé", name:"Frappe Mocca", desc:"Chocolate + café.", tags:["frappe"], sizes:{ "12 oz":55, "16 oz":65 }, extrasRule:"none" },
-      { id:"c_fra_vai",  baseCat:"Cafetería", subCat:"Frappé", name:"Frappe Vainilla", desc:"Clásico dulce.", tags:["frappe"], sizes:{ "12 oz":55, "16 oz":65 }, extrasRule:"none" },
-      { id:"c_fra_car",  baseCat:"Cafetería", subCat:"Frappé", name:"Frappe Caramelo", desc:"Caramelo intenso.", tags:["frappe"], sizes:{ "12 oz":55, "16 oz":65 }, extrasRule:"none" },
-      { id:"c_fra_cho",  baseCat:"Cafetería", subCat:"Frappé", name:"Frappe Chocolate", desc:"Chocolate frío.", tags:["frappe"], sizes:{ "12 oz":55, "16 oz":65 }, extrasRule:"none" },
-      { id:"c_fra_chai", baseCat:"Cafetería", subCat:"Frappé", name:"Frappe Chai", desc:"Especiado y suave.", tags:["frappe"], sizes:{ "12 oz":55, "16 oz":65 }, extrasRule:"none" },
+  const MENU = [
+    { id:"c_hot_ame", baseCat:"Cafetería", subCat:"Caliente", name:"Americano", desc:"Café caliente.", tags:["hot"], sizes:{ "12 oz":40, "16 oz":50 } },
+    { id:"c_hot_cap", baseCat:"Cafetería", subCat:"Caliente", name:"Capuccino", desc:"Espuma y carácter.", tags:["hot"], sizes:{ "12 oz":40, "16 oz":50 } },
+    { id:"c_hot_lat", baseCat:"Cafetería", subCat:"Caliente", name:"Latte", desc:"Cremoso y suave.", tags:["hot"], sizes:{ "12 oz":40, "16 oz":50 } },
+    { id:"c_hot_fw",  baseCat:"Cafetería", subCat:"Caliente", name:"Flat White", desc:"Intenso, balanceado.", tags:["hot"], sizes:{ "12 oz":40, "16 oz":50 } },
 
-      // Especiales Cafetería
-      { id:"c_sp_cho", baseCat:"Cafetería", subCat:"Caliente", name:"Chocolate caliente", desc:"Especial cafetería.", tags:["hot","special"], sizes:{ "12 oz":45, "16 oz":55 }, extrasRule:"none" },
-      { id:"c_sp_chai", baseCat:"Cafetería", subCat:"Frío", name:"Chai (caliente o frío)", desc:"Especial cafetería.", tags:["cold","special"], sizes:{ "12 oz":50, "16 oz":60 }, extrasRule:"none", options:["Frío","Caliente"] },
-      { id:"c_sp_lec", baseCat:"Cafetería", subCat:"Caliente", name:"Café lechero", desc:"Especial cafetería.", tags:["hot","special"], sizes:{ "12 oz":45, "16 oz":55 }, extrasRule:"none" },
-      { id:"c_sp_ton", baseCat:"Cafetería", subCat:"Frío", name:"Americano tónico", desc:"Especial cafetería.", tags:["cold","special"], sizes:{ "12 oz":45, "16 oz":55 }, extrasRule:"none" },
+    { id:"c_cold_ame", baseCat:"Cafetería", subCat:"Frío", name:"Americano (frío)", desc:"Café frío.", tags:["cold"], sizes:{ "12 oz":50, "16 oz":60 } },
+    { id:"c_cold_lat", baseCat:"Cafetería", subCat:"Frío", name:"Latte (frío)", desc:"Latte helado.", tags:["cold"], sizes:{ "12 oz":50, "16 oz":60 } },
+    { id:"c_cold_cap", baseCat:"Cafetería", subCat:"Frío", name:"Capuccino (frío)", desc:"Versión fría.", tags:["cold"], sizes:{ "12 oz":50, "16 oz":60 } },
 
-      // Refresquería - Clásicas
-      { id:"r_cla_lim_nat", baseCat:"Refresquería", subCat:null, name:"Limonada natural", desc:"Bebida clásica.", tags:["cold"], sizes:{ "20 oz":40, "32 oz":50 }, extrasRule:"general" },
-      { id:"r_cla_lim_min", baseCat:"Refresquería", subCat:null, name:"Limonada mineral", desc:"Bebida clásica.", tags:["cold"], sizes:{ "20 oz":40, "32 oz":50 }, extrasRule:"general" },
-      { id:"r_cla_uvola", baseCat:"Refresquería", subCat:null, name:"Uvola", desc:"Bebida clásica.", tags:["cold"], sizes:{ "20 oz":40, "32 oz":50 }, extrasRule:"general" },
-      { id:"r_cla_root", baseCat:"Refresquería", subCat:null, name:"Root Beer", desc:"Bebida clásica.", tags:["cold"], sizes:{ "20 oz":40, "32 oz":50 }, extrasRule:"general" },
-      { id:"r_cla_sifon", baseCat:"Refresquería", subCat:null, name:"Sifón", desc:"Bebida clásica.", tags:["cold"], sizes:{ "20 oz":40, "32 oz":50 }, extrasRule:"general" },
+    { id:"c_fra_cafe", baseCat:"Cafetería", subCat:"Frappé", name:"Frappe Café", desc:"Frappé base café.", tags:["frappe"], sizes:{ "12 oz":55, "16 oz":65 } },
+    { id:"c_fra_moc",  baseCat:"Cafetería", subCat:"Frappé", name:"Frappe Mocca", desc:"Chocolate + café.", tags:["frappe"], sizes:{ "12 oz":55, "16 oz":65 } },
+    { id:"c_fra_vai",  baseCat:"Cafetería", subCat:"Frappé", name:"Frappe Vainilla", desc:"Clásico dulce.", tags:["frappe"], sizes:{ "12 oz":55, "16 oz":65 } },
+    { id:"c_fra_car",  baseCat:"Cafetería", subCat:"Frappé", name:"Frappe Caramelo", desc:"Caramelo intenso.", tags:["frappe"], sizes:{ "12 oz":55, "16 oz":65 } },
+    { id:"c_fra_cho",  baseCat:"Cafetería", subCat:"Frappé", name:"Frappe Chocolate", desc:"Chocolate frío.", tags:["frappe"], sizes:{ "12 oz":55, "16 oz":65 } },
+    { id:"c_fra_chai", baseCat:"Cafetería", subCat:"Frappé", name:"Frappe Chai", desc:"Especiado y suave.", tags:["frappe"], sizes:{ "12 oz":55, "16 oz":65 } },
 
-      // Refresquería - Especiales
-      { id:"r_sp_lim_sab", baseCat:"Refresquería", subCat:null, name:"Limonada (sabores)", desc:"Fresa / frutos rojos / mango / pepino.", tags:["cold","special"], sizes:{ "12 oz":50, "16 oz":60 }, extrasRule:"ten" },
-      { id:"r_sp_limona", baseCat:"Refresquería", subCat:null, name:"Limonagría", desc:"Especial refresquería.", tags:["cold","special"], sizes:{ "12 oz":50, "16 oz":60 }, extrasRule:"ten" },
-      { id:"r_sp_soda", baseCat:"Refresquería", subCat:null, name:"Soda italiana", desc:"Especial refresquería.", tags:["cold","special"], sizes:{ "12 oz":50, "16 oz":60 }, extrasRule:"ten" },
+    { id:"c_sp_cho", baseCat:"Cafetería", subCat:"Caliente", name:"Chocolate caliente", desc:"Especial cafetería.", tags:["hot","special"], sizes:{ "12 oz":45, "16 oz":55 } },
+    { id:"c_sp_chai", baseCat:"Cafetería", subCat:"Frío", name:"Chai (caliente o frío)", desc:"Especial cafetería.", tags:["cold","special"], sizes:{ "12 oz":50, "16 oz":60 }, options:["Frío","Caliente"] },
+    { id:"c_sp_lec", baseCat:"Cafetería", subCat:"Caliente", name:"Café lechero", desc:"Especial cafetería.", tags:["hot","special"], sizes:{ "12 oz":45, "16 oz":55 } },
+    { id:"c_sp_ton", baseCat:"Cafetería", subCat:"Frío", name:"Americano tónico", desc:"Especial cafetería.", tags:["cold","special"], sizes:{ "12 oz":45, "16 oz":55 } },
 
-      // Snacks
-      { id:"s_pepi", baseCat:"Snacks", subCat:null, name:"Pepihuates", desc:"Snack.", tags:[], sizes:{ "Único":35 }, extrasRule:"none" },
-      { id:"s_papas", baseCat:"Snacks", subCat:null, name:"Papas preparadas", desc:"Snack.", tags:[], sizes:{ "Único":45 }, extrasRule:"none" },
-      { id:"s_tosti", baseCat:"Snacks", subCat:null, name:"Tostilocos", desc:"Snack.", tags:[], sizes:{ "Único":50 }, extrasRule:"none" },
-      { id:"s_dori", baseCat:"Snacks", subCat:null, name:"Dorilocos", desc:"Snack.", tags:[], sizes:{ "Único":50 }, extrasRule:"none" },
-      { id:"s_pan", baseCat:"Snacks", subCat:null, name:"Pan / Galleta", desc:"Snack.", tags:[], sizes:{ "Único":30 }, extrasRule:"none" },
-    ];
+    { id:"r_cla_lim_nat", baseCat:"Refresquería", subCat:null, name:"Limonada natural", desc:"Bebida clásica.", tags:["cold"], sizes:{ "20 oz":40, "32 oz":50 } },
+    { id:"r_cla_lim_min", baseCat:"Refresquería", subCat:null, name:"Limonada mineral", desc:"Bebida clásica.", tags:["cold"], sizes:{ "20 oz":40, "32 oz":50 } },
+    { id:"r_cla_uvola", baseCat:"Refresquería", subCat:null, name:"Uvola", desc:"Bebida clásica.", tags:["cold"], sizes:{ "20 oz":40, "32 oz":50 } },
+    { id:"r_cla_root", baseCat:"Refresquería", subCat:null, name:"Root Beer", desc:"Bebida clásica.", tags:["cold"], sizes:{ "20 oz":40, "32 oz":50 } },
+    { id:"r_cla_sifon", baseCat:"Refresquería", subCat:null, name:"Sifón", desc:"Bebida clásica.", tags:["cold"], sizes:{ "20 oz":40, "32 oz":50 } },
 
-    // ===== Estado =====
-    let baseFilter = "all";
-    let catFilter = "Todo";
-    let subFilter = "all";
-    let query = "";
-    let cart = [];
+    { id:"r_sp_lim_sab", baseCat:"Refresquería", subCat:null, name:"Limonada (sabores)", desc:"Fresa / frutos rojos / mango / pepino.", tags:["cold","special"], sizes:{ "12 oz":50, "16 oz":60 } },
+    { id:"r_sp_limona", baseCat:"Refresquería", subCat:null, name:"Limonagría", desc:"Especial refresquería.", tags:["cold","special"], sizes:{ "12 oz":50, "16 oz":60 } },
+    { id:"r_sp_soda", baseCat:"Refresquería", subCat:null, name:"Soda italiana", desc:"Especial refresquería.", tags:["cold","special"], sizes:{ "12 oz":50, "16 oz":60 } },
 
-    // ===== Helpers =====
-    const $ = (sel)=>document.querySelector(sel);
-    const money = (n)=>"$" + Number(n).toFixed(0);
+    { id:"s_pepi", baseCat:"Snacks", subCat:null, name:"Pepihuates", desc:"Snack.", tags:[], sizes:{ "Único":35 } },
+    { id:"s_papas", baseCat:"Snacks", subCat:null, name:"Papas preparadas", desc:"Snack.", tags:[], sizes:{ "Único":45 } },
+    { id:"s_tosti", baseCat:"Snacks", subCat:null, name:"Tostilocos", desc:"Snack.", tags:[], sizes:{ "Único":50 } },
+    { id:"s_dori", baseCat:"Snacks", subCat:null, name:"Dorilocos", desc:"Snack.", tags:[], sizes:{ "Único":50 } },
+    { id:"s_pan", baseCat:"Snacks", subCat:null, name:"Pan / Galleta", desc:"Snack.", tags:[], sizes:{ "Único":30 } },
+  ];
 
-    function setPortalTitle(){
-      const el = $("#portalTitle");
-      if(baseFilter==="Cafetería") el.textContent = "PORTAL — CAFETERÍA";
-      else if(baseFilter==="Refresquería") el.textContent = "PORTAL — REFRESQUERÍA";
-      else if(baseFilter==="Snacks") el.textContent = "PORTAL — SNACKS";
-      else el.textContent = "PORTAL — MENÚ";
-    }
+  let baseFilter = "all";
+  let catFilter = "Todo";
+  let subFilter = "all";
+  let query = "";
+  let cart = [];
 
-    function availableLeftCats(){
-      if(baseFilter==="Cafetería") return ["Todo","Caliente","Frío","Frappé","Especiales"];
-      if(baseFilter==="Refresquería") return ["Todo","Clásicas","Especiales"];
-      if(baseFilter==="Snacks") return ["Todo"];
-      return ["Todo","Cafetería","Refresquería","Snacks"];
-    }
+  function updateHeroTitle(){
+    const el = $("#heroTitle");
+    if(baseFilter==="Cafetería") el.textContent = "PORTAL CAFETERÍA";
+    else if(baseFilter==="Refresquería") el.textContent = "PORTAL REFRESQUERÍA";
+    else if(baseFilter==="Snacks") el.textContent = "PORTAL SNACKS";
+    else el.textContent = "PORTAL MENÚ";
+  }
 
-    function matches(item){
-      const baseOk = (baseFilter==="all") ? true : item.baseCat===baseFilter;
+  function availableLeftCats(){
+    if(baseFilter==="Cafetería") return ["Todo","Caliente","Frío","Frappé","Especiales"];
+    if(baseFilter==="Refresquería") return ["Todo","Clásicas","Especiales"];
+    if(baseFilter==="Snacks") return ["Todo"];
+    return ["Todo","Cafetería","Refresquería","Snacks"];
+  }
 
-      let leftOk = true;
-      if(catFilter!=="Todo"){
-        if(baseFilter==="Cafetería"){
-          if(catFilter==="Especiales") leftOk = item.baseCat==="Cafetería" && item.tags.includes("special");
-          else leftOk = item.baseCat==="Cafetería" && item.subCat===catFilter;
-        } else if(baseFilter==="Refresquería"){
-          if(catFilter==="Especiales") leftOk = item.baseCat==="Refresquería" && item.tags.includes("special");
-          else if(catFilter==="Clásicas") leftOk = item.baseCat==="Refresquería" && !item.tags.includes("special");
-          else leftOk = true;
-        } else if(baseFilter==="Snacks"){
-          leftOk = true;
-        } else {
-          leftOk = item.baseCat===catFilter;
-        }
-      }
+  function matches(item){
+    const baseOk = (baseFilter==="all") ? true : item.baseCat===baseFilter;
 
-      let subOk = true;
+    let leftOk = true;
+    if(catFilter!=="Todo"){
       if(baseFilter==="Cafetería"){
-        subOk = (subFilter==="all") ? true : item.subCat===subFilter;
+        if(catFilter==="Especiales") leftOk = item.baseCat==="Cafetería" && (item.tags||[]).includes("special");
+        else leftOk = item.baseCat==="Cafetería" && item.subCat===catFilter;
+      } else if(baseFilter==="Refresquería"){
+        if(catFilter==="Especiales") leftOk = item.baseCat==="Refresquería" && (item.tags||[]).includes("special");
+        else if(catFilter==="Clásicas") leftOk = item.baseCat==="Refresquería" && !(item.tags||[]).includes("special");
+        else leftOk = true;
+      } else if(baseFilter==="Snacks"){
+        leftOk = true;
+      } else {
+        leftOk = item.baseCat===catFilter;
       }
-
-      const q = query.trim().toLowerCase();
-      const qOk = !q ? true : (
-        item.name.toLowerCase().includes(q) ||
-        (item.desc||"").toLowerCase().includes(q) ||
-        (item.baseCat||"").toLowerCase().includes(q)
-      );
-
-      return baseOk && leftOk && subOk && qOk;
     }
 
-    function renderBasePills(){
-      document.querySelectorAll(".pill[data-base]").forEach(b=>{
-        b.classList.toggle("active", b.dataset.base===baseFilter);
-      });
-      $("#baseAll").classList.toggle("active", baseFilter==="all");
+    let subOk = true;
+    if(baseFilter==="Cafetería"){
+      subOk = (subFilter==="all") ? true : item.subCat===subFilter;
     }
 
-    function renderLeftCats(){
-      const cats = availableLeftCats();
-      const el = $("#cats");
-      el.innerHTML = "";
-      cats.forEach(c=>{
-        const count = MENU.filter(m=>{
-          const prev = catFilter;
-          catFilter = c;
-          const ok = matches(m);
-          catFilter = prev;
-          return ok;
-        }).length;
+    const q = norm(query.trim());
+    const qOk = !q ? true : (
+      norm(item.name).includes(q) ||
+      norm(item.desc||"").includes(q) ||
+      norm(item.baseCat||"").includes(q)
+    );
 
-        const btn = document.createElement("button");
-        btn.className = "catbtn" + (c===catFilter ? " active":"");
-        btn.innerHTML = `<span>${c}</span><span class="badge">${count}</span>`;
-        btn.onclick = ()=>{
-          catFilter = c;
-          if(baseFilter==="all" && ["Cafetería","Refresquería","Snacks"].includes(c)){
-            baseFilter = c;
-            catFilter = "Todo";
-          }
-          renderAll();
-        };
-        el.appendChild(btn);
-      });
-    }
+    return baseOk && leftOk && subOk && qOk;
+  }
 
-    function renderSubtabs(){
-      const el = $("#subtabs");
-      el.innerHTML = "";
-      if(baseFilter!=="Cafetería") return;
-
-      const tabs = ["all","Caliente","Frío","Frappé"];
-      const labels = { all:"Todo", "Caliente":"☕ Caliente", "Frío":"🧊 Frío", "Frappé":"🌀 Frappé" };
-
-      tabs.forEach(t=>{
-        const b = document.createElement("button");
-        b.className = "pill" + (subFilter===t ? " active":"");
-        b.textContent = labels[t];
-        b.onclick = ()=>{ subFilter = t; renderAll(); };
-        el.appendChild(b);
-      });
-    }
-
-    function tagHTML(item){
-      const chips = [];
-      chips.push(`<span class="tag">${item.baseCat}</span>`);
-      if(item.baseCat==="Cafetería" && item.subCat) chips.push(`<span class="tag">${item.subCat}</span>`);
-      if(item.tags.includes("hot")) chips.push(`<span class="tag hot">Caliente</span>`);
-      if(item.tags.includes("cold")) chips.push(`<span class="tag cold">Frío</span>`);
-      if(item.tags.includes("frappe")) chips.push(`<span class="tag frappe">Frappé</span>`);
-      if(item.tags.includes("special")) chips.push(`<span class="tag special">Especial</span>`);
-      return chips.join("");
-    }
-
-    function renderCards(){
-      const cards = $("#cards");
-      const results = MENU.filter(matches);
-      $("#resultHint").textContent = results.length ? `${results.length} opciones` : "Sin resultados";
-      $("#sectionName").textContent = baseFilter==="all" ? "Todo" : baseFilter;
-
-      cards.innerHTML = "";
-      results.forEach(item=>{
-        const div = document.createElement("div");
-        div.className = "item";
-        div.innerHTML = `
-          <div class="tagrow">${tagHTML(item)}</div>
-          <p class="name">${item.name}</p>
-          <p class="desc">${item.desc || ""}</p>
-          <div class="prices">
-            ${Object.entries(item.sizes).map(([size, price])=>`
-              <button class="pricebtn" data-id="${item.id}" data-size="${size}">
-                <small>${size}</small> ${money(price)}
-              </button>
-            `).join("")}
-          </div>
-        `;
-        div.querySelectorAll(".pricebtn").forEach(b=>{
-          b.onclick = ()=> openModal(item.id, b.dataset.size);
-        });
-        cards.appendChild(div);
-      });
-    }
-
-    // ===== Carrito =====
-    function cartKey(row){
-      return [row.id,row.size,row.option,row.extras,row.notes,row.price].join("|");
-    }
-
-    function addToCart(item, size, option, extras, notes){
-      const basePrice = item.sizes[size] ?? 0;
-      const extraPrice = Number((extras?.match(/\+(\d+)/)?.[1]) || 0);
-      const price = basePrice + extraPrice;
-
-      const row = {
-        id:item.id,
-        name:item.name,
-        size,
-        option: option || "Normal",
-        extras: extras || "Sin extras",
-        notes: notes || "",
-        price,
-        qty:1
-      };
-      row.key = cartKey(row);
-
-      const existing = cart.find(x=>x.key===row.key);
-      if(existing) existing.qty += 1;
-      else cart.push(row);
-
-      renderCart();
-    }
-
-    function renderCart(){
-      const list = $("#cartlist");
-      list.innerHTML = "";
-      if(!cart.length){
-        list.innerHTML = `<div class="hint" style="padding:10px; border:1px dashed rgba(26,37,80,.8); border-radius:14px; background:rgba(5,7,18,.25)">
-          Tu carrito está vacío. Toca un precio para agregar.
-        </div>`;
-        $("#total").textContent = money(0);
-        updateFloating();
-        return;
-      }
-
-      cart.forEach((c, idx)=>{
-        const div = document.createElement("div");
-        div.className = "lineitem";
-        div.innerHTML = `
-          <div style="min-width:0">
-            <p class="li-title">${c.name}</p>
-            <div class="li-sub">${c.size} • ${c.option}${c.extras && c.extras!=="Sin extras" ? " • " + c.extras : ""}${c.notes ? " • " + c.notes : ""}</div>
-            <div class="li-sub" style="margin-top:6px; opacity:.9"><strong>${money(c.price)}</strong></div>
-          </div>
-          <div class="li-actions">
-            <button class="mini" aria-label="Menos">−</button>
-            <div class="qty">${c.qty}</div>
-            <button class="mini" aria-label="Más">+</button>
-          </div>
-        `;
-        const [minus, plus] = div.querySelectorAll(".mini");
-        minus.onclick = ()=>{
-          c.qty -= 1;
-          if(c.qty<=0) cart.splice(idx,1);
-          renderCart();
-        };
-        plus.onclick = ()=>{ c.qty += 1; renderCart(); };
-        list.appendChild(div);
-      });
-
-      const total = cart.reduce((s,x)=>s + x.price*x.qty, 0);
-      $("#total").textContent = money(total);
-      updateFloating();
-    }
-
-    // ===== Modal =====
-    let modalItem = null;
-
-    function extrasOptionsFor(item){
-      if(item.extrasRule==="coffee" || item.extrasRule==="ten"){
-        return ["Sin extras", "Extra (+10)"];
-      }
-      if(item.extrasRule==="general"){
-        return ["Sin extras", "Chamoy (+5)", "Chamoy (+10)", "Miguelito (+5)", "Miguelito (+10)", "Salsa (+5)", "Salsa (+10)"];
-      }
-      return ["Sin extras"];
-    }
-
-    function openModal(itemId, preSize){
-      modalItem = MENU.find(x=>x.id===itemId);
-      if(!modalItem) return;
-
-      $("#mTitle").textContent = modalItem.name;
-      $("#mMeta").textContent = `${modalItem.baseCat}${modalItem.subCat ? " • " + modalItem.subCat : ""}`;
-
-      const sizeSel = $("#mSize");
-      sizeSel.innerHTML = Object.entries(modalItem.sizes)
-        .map(([s,p])=>`<option value="${s}">${s} — ${money(p)}</option>`).join("");
-      if(preSize) sizeSel.value = preSize;
-
-      const optSel = $("#mOption");
-      const options = modalItem.options?.length ? modalItem.options : ["Normal"];
-      optSel.innerHTML = options.map(o=>`<option value="${o}">${o}</option>`).join("");
-
-      const extSel = $("#mExtras");
-      const extOps = extrasOptionsFor(modalItem);
-      extSel.innerHTML = extOps.map(e=>`<option value="${e}">${e}</option>`).join("");
-
-      $("#mNotes").value = "";
-      $("#modal").showModal();
-    }
-
-    $("#mClose").onclick = ()=>$("#modal").close();
-    $("#mCancel").onclick = ()=>$("#modal").close();
-    $("#mAdd").onclick = ()=>{
-      const size = $("#mSize").value;
-      const option = $("#mOption").value;
-      const extras = $("#mExtras").value;
-      const notes = $("#mNotes").value.trim();
-      addToCart(modalItem, size, option, extras, notes);
-      $("#modal").close();
+  /* ====== FALTABAN ESTAS FUNCIONES (ARREGLADO) ====== */
+  function renderBasePills(){
+    const map = {
+      all: $("#baseAll"),
+      "Cafetería": $("#baseCafe"),
+      "Refresquería": $("#baseRef"),
+      "Snacks": $("#baseSnk"),
     };
+    Object.values(map).forEach(b=>b.classList.remove("active"));
+    if(baseFilter==="all") map.all.classList.add("active");
+    else map[baseFilter].classList.add("active");
+  }
 
-    // ===== WhatsApp =====
-    function buildOrderText(){
-      const lines = [];
-      lines.push("Pedido — CAFÉ PORTAL");
-      lines.push("—");
-      cart.forEach(c=>{
-        const extras = (c.extras && c.extras!=="Sin extras") ? ` • ${c.extras}` : "";
-        const notes = c.notes ? ` • ${c.notes}` : "";
-        lines.push(`${c.qty}× ${c.name} (${c.size}) • ${c.option}${extras}${notes} = ${money(c.price*c.qty)}`);
+  function renderLeftCats(){
+    const cats = availableLeftCats();
+    const el = $("#cats");
+    el.innerHTML = "";
+    cats.forEach(c=>{
+      const count = MENU.filter(m=>{
+        const prev = catFilter;
+        catFilter = c;
+        const ok = matches(m);
+        catFilter = prev;
+        return ok;
+      }).length;
+
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "catbtn" + (c===catFilter ? " active":"");
+      btn.innerHTML = `<span>${c}</span><span class="badge">${count}</span>`;
+      btn.onclick = ()=>{
+        catFilter = c;
+
+        // si está en "Todo" global y toca una categoría base del panel izquierdo
+        if(baseFilter==="all" && ["Cafetería","Refresquería","Snacks"].includes(c)){
+          baseFilter = c;
+          catFilter = "Todo";
+        }
+        renderAll();
+      };
+      el.appendChild(btn);
+    });
+  }
+
+  function renderSubtabs(){
+    const el = $("#subtabs");
+    el.innerHTML = "";
+    if(baseFilter!=="Cafetería") return;
+
+    const tabs = ["all","Caliente","Frío","Frappé"];
+    const labels = { all:"Todo", "Caliente":"☕ Caliente", "Frío":"🧊 Frío", "Frappé":"🌀 Frappé" };
+
+    tabs.forEach(t=>{
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "pill" + (subFilter===t ? " active":"");
+      b.textContent = labels[t];
+      b.onclick = ()=>{ subFilter = t; renderAll(); };
+      el.appendChild(b);
+    });
+  }
+  /* ====== /FALTABAN ====== */
+
+  function tagHTML(item){
+    const chips = [];
+    chips.push(`<span class="tag">${item.baseCat}</span>`);
+    if(item.baseCat==="Cafetería" && item.subCat) chips.push(`<span class="tag">${item.subCat}</span>`);
+    if((item.tags||[]).includes("hot")) chips.push(`<span class="tag hot">Caliente</span>`);
+    if((item.tags||[]).includes("cold")) chips.push(`<span class="tag cold">Frío</span>`);
+    if((item.tags||[]).includes("frappe")) chips.push(`<span class="tag frappe">Frappé</span>`);
+    if((item.tags||[]).includes("special")) chips.push(`<span class="tag special">Especial</span>`);
+    return chips.join("");
+  }
+
+  function renderCards(){
+    const cards = $("#cards");
+    const results = MENU.filter(matches);
+
+    $("#resultHint").textContent = results.length ? `${results.length} opciones` : "Sin resultados";
+    $("#sectionName").textContent = baseFilter==="all" ? "Todo" : baseFilter;
+
+    cards.innerHTML = "";
+    results.forEach(item=>{
+      const div = document.createElement("div");
+      div.className = "item";
+      div.innerHTML = `
+        <div class="tagrow">${tagHTML(item)}</div>
+        <p class="name">${item.name}</p>
+        <p class="desc">${item.desc || ""}</p>
+        <div class="prices">
+          ${Object.entries(item.sizes).map(([size, price])=>`
+            <button class="pricebtn" type="button" data-id="${item.id}" data-size="${size}">
+              <small>${size}</small> ${money(price)}
+            </button>
+          `).join("")}
+        </div>
+      `;
+      div.querySelectorAll(".pricebtn").forEach(b=>{
+        b.onclick = ()=> openModal(item.id, b.dataset.size);
       });
-      const total = cart.reduce((s,x)=>s + x.price*x.qty, 0);
-      lines.push("—");
-      lines.push("Total: " + money(total));
-      lines.push("—");
-      lines.push("Dirección: Gral. Piña 197B, Col. Balderrama");
-      return lines.join("\n");
-    }
+      cards.appendChild(div);
+    });
+  }
 
-    function sendToWhatsApp(){
-      if(!cart.length){
-        alert("Tu carrito está vacío 🙂");
-        return;
-      }
-      const text = buildOrderText();
-      const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
-      window.open(url, "_blank");
-    }
+  // ===== Modal + Extras (todos con "Con extra") =====
+  let modalItem = null;
 
-    $("#checkout").onclick = sendToWhatsApp;
+  function extrasOptionsForAll(){
+    return ["Sin extras", "Con extra (+10)"];
+  }
 
-    // ===== Botón flotante =====
-    function updateFloating(){
-      const items = cart.reduce((s,x)=>s + x.qty, 0);
-      const total = cart.reduce((s,x)=>s + x.price*x.qty, 0);
-      $("#waBadge").textContent = `${items} item${items===1?"":"s"} • ${money(total)}`;
-      $("#waFloat").style.opacity = cart.length ? "1" : "0.65";
-    }
-    $("#waFloat").onclick = sendToWhatsApp;
+  function openModal(itemId, preSize){
+    modalItem = MENU.find(x=>x.id===itemId);
+    if(!modalItem) return;
 
-    // ===== Base pills =====
-    function setBase(v){
-      baseFilter = v;
-      catFilter = "Todo";
-      subFilter = "all";
-      renderAll();
-    }
-    $("#baseAll").onclick = ()=>setBase("all");
-    $("#baseCafe").onclick = ()=>setBase("Cafetería");
-    $("#baseRef").onclick = ()=>setBase("Refresquería");
-    $("#baseSnk").onclick = ()=>setBase("Snacks");
+    $("#mTitle").textContent = modalItem.name;
+    $("#mMeta").textContent = `${modalItem.baseCat}${modalItem.subCat ? " • " + modalItem.subCat : ""}`;
 
-    // búsqueda
-    $("#q").addEventListener("input", (e)=>{
-      query = e.target.value;
-      renderAll();
+    const sizeSel = $("#mSize");
+    sizeSel.innerHTML = Object.entries(modalItem.sizes)
+      .map(([s,p])=>`<option value="${s}">${s} — ${money(p)}</option>`).join("");
+    if(preSize) sizeSel.value = preSize;
+
+    const optSel = $("#mOption");
+    const options = modalItem.options?.length ? modalItem.options : ["Normal"];
+    optSel.innerHTML = options.map(o=>`<option value="${o}">${o}</option>`).join("");
+
+    const extSel = $("#mExtras");
+    extSel.innerHTML = extrasOptionsForAll().map(e=>`<option value="${e}">${e}</option>`).join("");
+
+    $("#mNotes").value = "";
+    $("#modalOverlay").classList.add("open");
+  }
+
+  function closeModal(){ $("#modalOverlay").classList.remove("open"); }
+  $("#mClose").onclick = closeModal;
+  $("#mCancel").onclick = closeModal;
+  $("#modalOverlay").addEventListener("click", (e)=>{ if(e.target.id === "modalOverlay") closeModal(); });
+
+  // ===== Carrito =====
+  function addToCart(item, size, option, extras, notes){
+    const basePrice = item.sizes[size] ?? 0;
+    const extraPrice = Number((extras?.match(/\+(\d+)/)?.[1]) || 0);
+    const price = basePrice + extraPrice;
+
+    const safeNotes = String(notes || "").replace(/\s+/g, " ").trim();
+    const safeExtras = String(extras || "Sin extras").trim();
+    const safeOption = String(option || "Normal").trim();
+
+    const key = [item.id, size, safeOption, safeExtras, safeNotes].join("|");
+
+    const existing = cart.find(x=>x.key===key);
+    if(existing) existing.qty += 1;
+    else cart.push({
+      key,
+      id:item.id,
+      name:item.name,
+      size,
+      option: safeOption,
+      extras: safeExtras,
+      notes: safeNotes,
+      price,
+      qty:1
     });
 
-    function renderAll(){
-      setPortalTitle();
-      renderBasePills();
-      renderSubtabs();
-      renderLeftCats();
-      renderCards();
-      renderCart();
+    renderCart();
+  }
+
+  function renderCart(){
+    const list = $("#cartlist");
+    list.innerHTML = "";
+
+    if(!cart.length){
+      list.innerHTML = `<div class="hint" style="padding:10px; border:1px dashed rgba(26,37,80,.8); border-radius:14px; background:rgba(5,7,18,.25)">
+        Tu carrito está vacío. Toca un precio para agregar.
+      </div>`;
+      $("#total").textContent = money(0);
+      updateFloating();
+      return;
     }
 
-    // ===== Starfield (canvas) ligero =====
-    (function initStarfield(){
-      const canvas = document.getElementById("starfield");
-      const ctx = canvas.getContext("2d", { alpha:true });
+    cart.forEach((c)=>{
+      const div = document.createElement("div");
+      div.className = "lineitem";
+      div.innerHTML = `
+        <div style="min-width:0">
+          <p class="li-title">${c.name}</p>
+          <div class="li-sub">${c.size} • ${c.option}${c.extras && c.extras!=="Sin extras" ? " • " + c.extras : ""}${c.notes ? " • " + c.notes : ""}</div>
+          <div class="li-sub" style="margin-top:6px; opacity:.9"><strong>${money(c.price)}</strong></div>
+        </div>
+        <div class="li-actions">
+          <button class="mini" type="button" data-act="minus" data-key="${c.key}" aria-label="Menos">−</button>
+          <div class="qty">${c.qty}</div>
+          <button class="mini" type="button" data-act="plus" data-key="${c.key}" aria-label="Más">+</button>
+          <button class="mini" type="button" data-act="del" data-key="${c.key}" aria-label="Borrar" title="Borrar">🗑️</button>
+        </div>
+      `;
+      list.appendChild(div);
+    });
 
-      let w=0, h=0, dpr=1;
-      let stars = [];
-      let lastT = 0;
-
-      function resize(){
-        dpr = Math.min(window.devicePixelRatio || 1, 2);
-        w = Math.floor(window.innerWidth);
-        h = Math.floor(window.innerHeight);
-        canvas.width = Math.floor(w * dpr);
-        canvas.height = Math.floor(h * dpr);
-        canvas.style.width = w + "px";
-        canvas.style.height = h + "px";
-        ctx.setTransform(dpr,0,0,dpr,0,0);
-
-        const count = Math.floor((w*h)/22000); // densidad
-        stars = Array.from({length: count}, ()=>({
-          x: Math.random()*w,
-          y: Math.random()*h,
-          r: Math.random()*1.6 + 0.2,
-          a: Math.random()*0.55 + 0.15,
-          s: Math.random()*0.18 + 0.04, // velocidad
-          tw: Math.random()*0.9 + 0.3,  // twinkle
-          p: Math.random()*Math.PI*2
-        }));
-      }
-
-      function draw(t){
-        const dt = Math.min((t - lastT) / 1000, 0.05);
-        lastT = t;
-
-        ctx.clearRect(0,0,w,h);
-
-        // ligera neblina
-        ctx.fillStyle = "rgba(57,184,255,0.02)";
-        ctx.fillRect(0,0,w,h);
-
-        for(const st of stars){
-          st.y += st.s * (28 * dt);
-          if(st.y > h+2){ st.y = -2; st.x = Math.random()*w; }
-
-          st.p += dt * st.tw;
-          const alpha = st.a * (0.7 + 0.3*Math.sin(st.p));
-
-          ctx.beginPath();
-          ctx.fillStyle = `rgba(234,240,255,${alpha.toFixed(3)})`;
-          ctx.arc(st.x, st.y, st.r, 0, Math.PI*2);
-          ctx.fill();
-        }
-
-        requestAnimationFrame(draw);
-      }
-
-      window.addEventListener("resize", resize, {passive:true});
-      resize();
-      requestAnimationFrame((t)=>{ lastT=t; draw(t); });
-    })();
-
-    // init
+    const total = cart.reduce((s,x)=>s + x.price*x.qty, 0);
+    $("#total").textContent = money(total);
     updateFloating();
+  }
+
+  $("#cartlist").addEventListener("click", (e)=>{
+    const btn = e.target.closest("button.mini");
+    if(!btn) return;
+
+    const act = btn.dataset.act;
+    const key = btn.dataset.key;
+    const idx = cart.findIndex(x=>x.key===key);
+    if(idx < 0) return;
+
+    if(act === "minus"){
+      cart[idx].qty -= 1;
+      if(cart[idx].qty <= 0) cart.splice(idx,1);
+      renderCart();
+    } else if(act === "plus"){
+      cart[idx].qty += 1;
+      renderCart();
+    } else if(act === "del"){
+      const label = `${cart[idx].name} (${cart[idx].size})`;
+      const ok = confirm(`¿Borrar este producto del pedido?\n\n${label}`);
+      if(!ok) return;
+      cart.splice(idx, 1);
+      renderCart();
+    }
+  });
+
+  $("#mAdd").onclick = ()=>{
+    if(!modalItem) return;
+    const size = $("#mSize").value;
+    const option = $("#mOption").value;
+    const extras = $("#mExtras").value;
+    const notes = $("#mNotes").value.trim();
+    addToCart(modalItem, size, option, extras, notes);
+    closeModal();
+  };
+
+  $("#clearCart").onclick = ()=>{
+    if(!cart.length) return;
+    const ok = confirm("¿Vaciar el carrito?\n\nEsto borrará toda la orden sin enviarla.");
+    if(!ok) return;
+    cart = [];
+    renderCart();
+  };
+
+  // ===== WhatsApp =====
+  function buildOrderText(){
+    const lines = [];
+    lines.push("Pedido — CAFÉ PORTAL");
+    lines.push("—");
+    cart.forEach(c=>{
+      const extras = (c.extras && c.extras!=="Sin extras") ? ` • ${c.extras}` : "";
+      const notes = c.notes ? ` • ${c.notes}` : "";
+      lines.push(`${c.qty}× ${c.name} (${c.size}) • ${c.option}${extras}${notes} = ${money(c.price*c.qty)}`);
+    });
+    const total = cart.reduce((s,x)=>s + x.price*x.qty, 0);
+    lines.push("—");
+    lines.push("Total: " + money(total));
+    return lines.join("\n");
+  }
+
+  function sendToWhatsApp(){
+    if(!cart.length){
+      alert("Tu carrito está vacío 🙂");
+      return;
+    }
+    const items = cart.reduce((s,x)=>s + x.qty, 0);
+    const total = cart.reduce((s,x)=>s + x.price*x.qty, 0);
+
+    const ok = confirm(`¿Enviar pedido por WhatsApp?\n\nItems: ${items}\nTotal: ${money(total)}`);
+    if(!ok) return;
+
+    const text = buildOrderText();
+    const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
+    window.open(url, "_blank");
+  }
+
+  $("#checkout").onclick = sendToWhatsApp;
+  $("#waFloat").onclick = sendToWhatsApp;
+
+  function updateFloating(){
+    const items = cart.reduce((s,x)=>s + x.qty, 0);
+    const total = cart.reduce((s,x)=>s + x.price*x.qty, 0);
+    $("#waBadge").textContent = `${items} item${items===1?"":"s"} • ${money(total)}`;
+    $("#waFloat").style.opacity = cart.length ? "1" : "0.65";
+  }
+
+  // ===== Base pills =====
+  function setBase(v){
+    baseFilter = v;
+    catFilter = "Todo";
+    subFilter = "all";
     renderAll();
-  </script>
+  }
+
+  $("#baseAll").onclick = ()=>setBase("all");
+  $("#baseCafe").onclick = ()=>setBase("Cafetería");
+  $("#baseRef").onclick = ()=>setBase("Refresquería");
+  $("#baseSnk").onclick = ()=>setBase("Snacks");
+
+  $("#q").addEventListener("input", (e)=>{
+    query = e.target.value;
+    renderAll();
+  });
+
+  function renderAll(){
+    updateHeroTitle();
+    renderBasePills();
+    renderSubtabs();
+    renderLeftCats();
+    renderCards();
+    renderCart();
+  }
+
+  // ===== Starfield =====
+  (function starfield(){
+    const canvas = document.getElementById("stars");
+    const ctx = canvas.getContext("2d", { alpha:true });
+
+    let w=0,h=0, dpr=1;
+    let stars = [];
+    const STAR_COUNT = 220;
+
+    function resize(){
+      dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+      w = window.innerWidth;
+      h = window.innerHeight;
+      canvas.width = Math.floor(w*dpr);
+      canvas.height = Math.floor(h*dpr);
+      canvas.style.width = w + "px";
+      canvas.style.height = h + "px";
+      ctx.setTransform(dpr,0,0,dpr,0,0);
+
+      stars = Array.from({length: STAR_COUNT}, ()=>({
+        x: Math.random()*w,
+        y: Math.random()*h,
+        r: Math.random()*1.3 + 0.2,
+        a: Math.random()*0.65 + 0.15,
+        s: Math.random()*0.20 + 0.03,
+        tw: Math.random()*0.018 + 0.004,
+        ph: Math.random()*Math.PI*2
+      }));
+    }
+
+    function draw(t){
+      ctx.clearRect(0,0,w,h);
+      const g = ctx.createRadialGradient(w*0.5,h*0.35, 0, w*0.5,h*0.35, Math.max(w,h)*0.7);
+      g.addColorStop(0, "rgba(57,184,255,0.06)");
+      g.addColorStop(0.55, "rgba(124,77,255,0.04)");
+      g.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.fillStyle = g;
+      ctx.fillRect(0,0,w,h);
+
+      const time = t * 0.001;
+      for(const s of stars){
+        s.y += s.s;
+        if(s.y > h+10){ s.y = -10; s.x = Math.random()*w; }
+        const twinkle = 0.55 + 0.45*Math.sin(time*6*s.tw + s.ph);
+        const a = s.a * twinkle;
+
+        ctx.beginPath();
+        ctx.fillStyle = `rgba(234,240,255,${a})`;
+        ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+        ctx.fill();
+      }
+      requestAnimationFrame(draw);
+    }
+
+    window.addEventListener("resize", resize, { passive:true });
+    resize();
+    requestAnimationFrame(draw);
+  })();
+
+  // init
+  updateFloating();
+  renderAll();
+</script>
 </body>
 </html>
