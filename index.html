@@ -17,7 +17,12 @@
 
       --brand-size: clamp(20px, 4.8vw, 28px);
       --brand-letter: clamp(2.2px, 0.7vw, 3.6px);
+
+      /* Portal global (modal) */
+      --portal: rgba(57,184,255,.95);
+      --portal2: rgba(124,77,255,.75);
     }
+
     *{box-sizing:border-box}
     body{
       margin:0;
@@ -115,6 +120,7 @@
       text-transform:uppercase;
       letter-spacing:1.4px;
       font-weight:900;
+      -webkit-tap-highlight-color: transparent;
     }
     .pill:hover{transform:translateY(-1px); border-color: rgba(57,184,255,.55)}
     .pill.active{
@@ -192,6 +198,7 @@
       text-transform:uppercase;
       letter-spacing:1.2px;
       font-weight:900;
+      -webkit-tap-highlight-color: transparent;
     }
     .catbtn:hover{background: rgba(57,184,255,.08)}
     .catbtn.active{
@@ -232,6 +239,9 @@
       border-radius: 18px;
       padding:12px;
       transition: transform .10s ease, border-color .15s ease, background .15s ease;
+      position:relative;
+      overflow:hidden;
+      -webkit-tap-highlight-color: transparent;
     }
     .item:hover{
       transform: translateY(-2px);
@@ -239,7 +249,92 @@
       background: rgba(5,7,18,.55);
     }
 
-    .tagrow{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px}
+    /* ===========================
+       ✅ Portal click sobre card
+       =========================== */
+    .item .tapPortal{
+      position:absolute;
+      left: var(--rx, 50%);
+      top: var(--ry, 45%);
+      width: 14px;
+      height: 14px;
+      transform: translate(-50%,-50%) scale(0.25);
+      border-radius: 999px;
+      opacity:0;
+      pointer-events:none;
+      z-index:0;
+      filter: drop-shadow(0 0 10px var(--pc1, rgba(57,184,255,.95)))
+              drop-shadow(0 0 24px var(--pc1, rgba(57,184,255,.95)))
+              drop-shadow(0 0 52px var(--pc2, rgba(124,77,255,.75)));
+      background:
+        radial-gradient(circle at 50% 50%,
+          rgba(255,255,255,.70),
+          var(--pc1, rgba(57,184,255,.95)) 35%,
+          rgba(0,0,0,0) 70%);
+    }
+
+    .item.tap .tapPortal{
+      animation: tapPortalBurst .62s ease-out forwards;
+    }
+
+    @keyframes tapPortalBurst{
+      0%   { opacity:0; transform: translate(-50%,-50%) scale(0.25); }
+      18%  { opacity:1; }
+      55%  { opacity:.95; transform: translate(-50%,-50%) scale(16); }
+      100% { opacity:0; transform: translate(-50%,-50%) scale(22); }
+    }
+
+    /* anillo */
+    .item .tapPortal:after{
+      content:"";
+      position:absolute; inset:-22%;
+      border-radius:999px;
+      border: 2px solid var(--pc1, rgba(57,184,255,.95));
+      opacity:.0;
+      filter: blur(.2px);
+    }
+    .item.tap .tapPortal:after{
+      animation: tapRing .62s ease-out forwards;
+    }
+    @keyframes tapRing{
+      0%{ opacity:0; transform: scale(.55) rotate(0deg); }
+      20%{ opacity:.95; }
+      100%{ opacity:0; transform: scale(1.35) rotate(140deg); }
+    }
+
+    /* halo suave atrás */
+    .item .tapHalo{
+      position:absolute; inset:-40%;
+      background: radial-gradient(circle at 50% 50%, var(--pc2, rgba(124,77,255,.75)), rgba(0,0,0,0) 60%);
+      opacity:0;
+      filter: blur(22px);
+      pointer-events:none;
+      z-index:0;
+      transform: scale(.9);
+    }
+    .item.tap .tapHalo{
+      animation: halo .62s ease-out forwards;
+    }
+    @keyframes halo{
+      0%{ opacity:0; transform: scale(.85); }
+      30%{ opacity:.35; }
+      100%{ opacity:0; transform: scale(1.08); }
+    }
+
+    /* card pulse ligero */
+    .item.tap{
+      animation: cardPulse .35s ease-out both;
+    }
+    @keyframes cardPulse{
+      0%{ transform: translateY(0) scale(1); box-shadow: none; }
+      35%{
+        transform: translateY(-2px) scale(1.01);
+        box-shadow: 0 0 0 1px rgba(57,184,255,.22) inset, 0 0 36px rgba(57,184,255,.10);
+      }
+      100%{ transform: translateY(0) scale(1); box-shadow: none; }
+    }
+
+    .tagrow{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px; position:relative; z-index:1;}
     .tag{
       font-size:11px;
       padding:3px 8px;
@@ -250,34 +345,19 @@
       text-transform:uppercase;
       letter-spacing:1px;
       font-weight:900;
-      transition: box-shadow .25s ease, transform .15s ease, border-color .2s ease;
     }
-
-    /* Base categories con color */
+    .tag.hot{border-color: rgba(255,80,80,.55); color: rgba(255,120,120,.98)}
+    .tag.cold{border-color: rgba(57,184,255,.55); color: rgba(57,184,255,.95)}
+    .tag.frappe{border-color: rgba(160,110,255,.55); color: rgba(196,164,255,.98)}
+    .tag.special{border-color: rgba(44,246,196,.45); color: rgba(44,246,196,.95)}
     .tag.baseCafe{border-color: rgba(57,184,255,.55); color: rgba(57,184,255,.95)}
     .tag.baseRef{border-color: rgba(44,246,196,.45); color: rgba(44,246,196,.95)}
     .tag.baseSnack{border-color: rgba(255,214,140,.40); color: rgba(255,214,140,.95)}
 
-    /* Sub categories con color */
-    .tag.hot{border-color: rgba(255,204,102,.5); color: rgba(255,204,102,.95)}
-    .tag.cold{border-color: rgba(57,184,255,.55); color: rgba(57,184,255,.95)}
-    .tag.frappe{border-color: rgba(124,77,255,.55); color: rgba(124,77,255,.95)}
-    .tag.special{border-color: rgba(44,246,196,.45); color: rgba(44,246,196,.95)}
+    .name{font-weight:1000; margin:0 0 6px; font-size:15px; text-transform:uppercase; letter-spacing:1.3px; position:relative; z-index:1;}
+    .desc{margin:0 0 10px; font-size:12px; color:rgba(234,240,255,.68); line-height:1.35; position:relative; z-index:1;}
 
-    /* Glow al tacto (tap) y hover */
-    .tag.baseCafe:hover,.tag.baseCafe:active{ box-shadow:0 0 16px rgba(57,184,255,.45),0 0 34px rgba(57,184,255,.20); transform:scale(1.05); }
-    .tag.baseRef:hover,.tag.baseRef:active{ box-shadow:0 0 16px rgba(44,246,196,.45),0 0 30px rgba(44,246,196,.18); transform:scale(1.05); }
-    .tag.baseSnack:hover,.tag.baseSnack:active{ box-shadow:0 0 16px rgba(255,214,140,.40),0 0 32px rgba(255,214,140,.18); transform:scale(1.05); }
-
-    .tag.hot:hover,.tag.hot:active{ box-shadow:0 0 16px rgba(255,204,102,.45),0 0 34px rgba(255,204,102,.20); transform:scale(1.05); }
-    .tag.cold:hover,.tag.cold:active{ box-shadow:0 0 16px rgba(57,184,255,.45),0 0 34px rgba(57,184,255,.20); transform:scale(1.05); }
-    .tag.frappe:hover,.tag.frappe:active{ box-shadow:0 0 16px rgba(124,77,255,.45),0 0 34px rgba(124,77,255,.22); transform:scale(1.05); }
-    .tag.special:hover,.tag.special:active{ box-shadow:0 0 16px rgba(44,246,196,.45),0 0 30px rgba(44,246,196,.18); transform:scale(1.05); }
-
-    .name{font-weight:1000; margin:0 0 6px; font-size:15px; text-transform:uppercase; letter-spacing:1.3px;}
-    .desc{margin:0 0 10px; font-size:12px; color:rgba(234,240,255,.68); line-height:1.35}
-
-    .prices{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+    .prices{display:flex; gap:8px; flex-wrap:wrap; align-items:center; position:relative; z-index:1;}
     .pricebtn{
       padding:8px 10px;
       border-radius:12px;
@@ -290,9 +370,18 @@
       text-transform:uppercase;
       letter-spacing:1px;
       font-weight:900;
+      -webkit-tap-highlight-color: transparent;
+      position:relative;
+      overflow:hidden;
     }
     .pricebtn:hover{border-color: rgba(57,184,255,.55)}
     .pricebtn small{opacity:.7; font-weight:900}
+    .pricebtn.tapBtn{ animation: btnPulse .28s ease-out both; }
+    @keyframes btnPulse{
+      0%{ transform: scale(1); box-shadow: none; }
+      40%{ transform: scale(1.02); box-shadow: 0 0 0 1px rgba(57,184,255,.35) inset, 0 0 22px rgba(57,184,255,.18); }
+      100%{ transform: scale(1); box-shadow: none; }
+    }
 
     .cart{position:sticky; top:92px}
     .cartbox{padding:12px}
@@ -315,6 +404,7 @@
       cursor:pointer;
       display:grid; place-items:center;
       font-weight:1000;
+      -webkit-tap-highlight-color: transparent;
     }
     .mini:hover{border-color: rgba(57,184,255,.55)}
     .qty{min-width:18px; text-align:center; font-weight:1000}
@@ -340,6 +430,7 @@
       cursor:pointer;
       text-transform:uppercase;
       letter-spacing:1.6px;
+      -webkit-tap-highlight-color: transparent;
     }
     .danger{
       margin-top:10px;
@@ -353,6 +444,7 @@
       cursor:pointer;
       text-transform:uppercase;
       letter-spacing:1.2px;
+      -webkit-tap-highlight-color: transparent;
     }
 
     .btn[disabled], .checkout[disabled]{ opacity:.55; cursor:not-allowed; filter: grayscale(20%); }
@@ -387,6 +479,7 @@
       pointer-events: none;
       transform: translateX(-50%) translateY(10px);
       transition: opacity .18s ease, transform .18s ease;
+      -webkit-tap-highlight-color: transparent;
     }
     #waFloat .left{display:flex; align-items:center; gap:10px;}
     #waFloat .wabadge{
@@ -416,6 +509,7 @@
       letter-spacing:1.2px;
       font-weight:1000;
       transition: transform .08s ease, border-color .15s ease, background .15s ease;
+      -webkit-tap-highlight-color: transparent;
     }
     .cartTabBtn:hover{transform:translateY(-1px); border-color: rgba(57,184,255,.55)}
     .cartTabBtn.active{
@@ -436,15 +530,140 @@
       outline:none;
     }
 
+    /* ============================
+       Modal + Portal (fondo)
+       ============================ */
     .modalOverlay{
       position:fixed; inset:0;
-      background: rgba(0,0,0,.55);
+      background: rgba(0,0,0,.20);
       display:none;
       z-index: 10000;
       padding: 18px;
     }
     .modalOverlay.open{display:flex; align-items:center; justify-content:center;}
+
+    #portalFX{
+      position:absolute; inset:0;
+      pointer-events:none;
+      opacity:0;
+      transition: opacity .12s ease;
+      z-index:0;
+    }
+    #portalFX.on{ opacity:1; }
+
+    .portalWash{
+      position:absolute; inset:0;
+      background:
+        radial-gradient(900px 700px at 50% 45%, rgba(0,0,0,0), rgba(0,0,0,.55) 70%, rgba(0,0,0,.78) 100%),
+        radial-gradient(1200px 900px at 50% 45%, var(--portal2), rgba(0,0,0,0) 70%),
+        radial-gradient(900px 650px at 50% 45%, var(--portal), rgba(0,0,0,0) 62%);
+      opacity:.95;
+    }
+
+    .portalWrap{
+      position:absolute;
+      left:50%; top:48%;
+      width: min(560px, 84vw);
+      aspect-ratio: 1 / 1;
+      transform: translate(-50%,-50%) scale(.92);
+      opacity:1;
+      filter: drop-shadow(0 0 18px var(--portal))
+              drop-shadow(0 0 60px var(--portal))
+              drop-shadow(0 0 120px var(--portal2));
+      animation: portalIn .24s ease-out both;
+    }
+    @keyframes portalIn{
+      from{ transform: translate(-50%,-50%) scale(.80); opacity:0; }
+      to{ transform: translate(-50%,-50%) scale(.92); opacity:1; }
+    }
+
+    .portalFlash{
+      position:absolute; inset:-12%;
+      border-radius:999px;
+      background: radial-gradient(circle at 50% 50%, rgba(255,255,255,.75), rgba(255,255,255,0) 62%);
+      opacity:0;
+      filter: blur(12px);
+      animation: flash 650ms ease-out both;
+    }
+    @keyframes flash{
+      0%{opacity:0; transform:scale(.86)}
+      22%{opacity:.95; transform:scale(1.03)}
+      100%{opacity:0; transform:scale(1.18)}
+    }
+
+    .portalCore{
+      position:absolute; inset: 22%;
+      border-radius:999px;
+      background:
+        radial-gradient(circle at 35% 30%,
+          rgba(255,255,255,.45),
+          var(--portal) 35%,
+          rgba(0,0,0,0) 72%);
+      opacity:.70;
+      filter: blur(10px);
+      animation: corePulse 1.0s ease-in-out infinite;
+    }
+    @keyframes corePulse{
+      0%,100%{ transform: scale(1); opacity:.55; }
+      50%{ transform: scale(1.10); opacity:.88; }
+    }
+
+    .portalRing{
+      position:absolute; inset: 7%;
+      border-radius:999px;
+      background:
+        radial-gradient(circle at 50% 50%,
+          rgba(0,0,0,0) 50%,
+          var(--portal) 60%,
+          rgba(0,0,0,0) 74%),
+        conic-gradient(from 0deg,
+          rgba(255,255,255,0),
+          var(--portal),
+          rgba(255,255,255,0),
+          var(--portal2),
+          rgba(255,255,255,0));
+      opacity:1;
+      filter: blur(1px);
+      animation: ringSpin .95s linear infinite;
+    }
+    @keyframes ringSpin{ to{ transform: rotate(360deg); } }
+
+    .portalWave{
+      position:absolute; inset: 8%;
+      border-radius:999px;
+      border: 3px solid var(--portal);
+      opacity:0;
+      filter: blur(.6px);
+      animation: wave .9s ease-out infinite;
+    }
+    .portalWave.w2{ animation-delay: .30s; border-color: var(--portal2); }
+    .portalWave.w3{ animation-delay: .60s; border-color: var(--portal); }
+    @keyframes wave{
+      0%{ transform: scale(.82); opacity:0; }
+      18%{ opacity:.85; }
+      100%{ transform: scale(1.22); opacity:0; }
+    }
+
+    .portalSparks{
+      position:absolute; inset:0;
+      border-radius:999px;
+      background:
+        radial-gradient(circle at 22% 28%, rgba(255,255,255,.7), rgba(255,255,255,0) 38%),
+        radial-gradient(circle at 72% 22%, rgba(255,255,255,.45), rgba(255,255,255,0) 36%),
+        radial-gradient(circle at 82% 72%, rgba(255,255,255,.35), rgba(255,255,255,0) 36%),
+        radial-gradient(circle at 28% 82%, rgba(255,255,255,.50), rgba(255,255,255,0) 38%);
+      opacity:.28;
+      filter: blur(14px);
+      animation: sparks 1.1s ease-in-out infinite alternate;
+    }
+    @keyframes sparks{
+      from{ transform: translateY(-10px) scale(1); opacity:.22;}
+      to{ transform: translateY(10px) scale(1.05); opacity:.34;}
+    }
+
     .modal{
+      position:relative;
+      z-index:1;
       width: min(560px, 92vw);
       border-radius: 18px;
       border:1px solid rgba(26,37,80,.75);
@@ -466,6 +685,7 @@
       cursor:pointer;
       display:grid; place-items:center;
       font-weight:1000;
+      -webkit-tap-highlight-color: transparent;
     }
     .modalBody{padding:14px}
     .row{display:flex; gap:10px; flex-wrap:wrap}
@@ -496,10 +716,20 @@
       font-weight:1000;
       text-transform:uppercase;
       letter-spacing:1.2px;
+      -webkit-tap-highlight-color: transparent;
     }
     .btn.primary{
       border-color: rgba(57,184,255,.6);
       background: linear-gradient(135deg, rgba(57,184,255,.22), rgba(124,77,255,.18));
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      .item.tap .tapPortal,
+      .item.tap .tapPortal:after,
+      .item.tap .tapHalo,
+      .portalWrap, .portalRing, .portalCore, .portalSparks, .portalWave, .portalFlash{
+        animation:none!important;
+      }
     }
   </style>
 </head>
@@ -599,6 +829,19 @@
   </main>
 
   <div class="modalOverlay" id="modalOverlay">
+    <div id="portalFX" aria-hidden="true">
+      <div class="portalWash"></div>
+      <div class="portalWrap">
+        <div class="portalFlash"></div>
+        <div class="portalSparks"></div>
+        <div class="portalRing"></div>
+        <div class="portalWave w1"></div>
+        <div class="portalWave w2"></div>
+        <div class="portalWave w3"></div>
+        <div class="portalCore"></div>
+      </div>
+    </div>
+
     <div class="modal" role="dialog" aria-modal="true">
       <div class="modalHead">
         <div>
@@ -832,7 +1075,6 @@
 
   function tagHTML(item){
     const chips = [];
-
     const baseClass = item.baseCat === "Cafetería" ? "baseCafe"
                     : item.baseCat === "Refresquería" ? "baseRef"
                     : item.baseCat === "Snacks" ? "baseSnack"
@@ -847,18 +1089,59 @@
       chips.push(`<span class="tag ${subClass}">${item.subCat}</span>`);
     }
 
-    const sub = item.subCat || "";
-    const hasHot = (item.tags||[]).includes("hot");
-    const hasCold = (item.tags||[]).includes("cold");
-    const hasFrappe = (item.tags||[]).includes("frappe");
-    const hasSpecial = (item.tags||[]).includes("special");
-
-    if(hasSpecial) chips.push(`<span class="tag special">Especial</span>`);
-    if(hasHot && !(item.baseCat==="Cafetería" && sub==="Caliente")) chips.push(`<span class="tag hot">Caliente</span>`);
-    if(hasCold && !(item.baseCat==="Cafetería" && sub==="Frío")) chips.push(`<span class="tag cold">Frío</span>`);
-    if(hasFrappe && !(item.baseCat==="Cafetería" && sub==="Frappé")) chips.push(`<span class="tag frappe">Frappé</span>`);
-
+    if((item.tags||[]).includes("special")){
+      chips.push(`<span class="tag special">Especial</span>`);
+    }
     return chips.join("");
+  }
+
+  // ====== Portal palettes ======
+  function paletteForItem(item){
+    const tags = item?.tags || [];
+    const base = item?.baseCat || "";
+    const sub  = item?.subCat || "";
+
+    if(sub === "Frappé" || tags.includes("frappe")) return { c1:"rgba(160,110,255,.98)", c2:"rgba(124,77,255,.78)" };
+    if(sub === "Caliente" || tags.includes("hot"))   return { c1:"rgba(255,120,120,.98)", c2:"rgba(255,80,80,.70)" };
+    if(sub === "Frío" || tags.includes("cold"))      return { c1:"rgba(57,184,255,.98)",  c2:"rgba(124,77,255,.70)" };
+    if(base === "Snacks")                           return { c1:"rgba(255,214,140,.98)", c2:"rgba(255,180,80,.65)" };
+    if(base === "Refresquería")                     return { c1:"rgba(44,246,196,.96)",  c2:"rgba(57,184,255,.60)" };
+
+    return { c1:"rgba(57,184,255,.98)", c2:"rgba(124,77,255,.75)" };
+  }
+
+  // ✅ click portal animation on card
+  function playCardPortal(cardEl, ev, item){
+    if(!cardEl) return;
+
+    // coords inside card
+    let x = 0.5, y = 0.42;
+    if(ev && typeof ev.clientX === "number"){
+      const r = cardEl.getBoundingClientRect();
+      x = (ev.clientX - r.left) / Math.max(1, r.width);
+      y = (ev.clientY - r.top) / Math.max(1, r.height);
+    }
+    cardEl.style.setProperty("--rx", (x*100).toFixed(1) + "%");
+    cardEl.style.setProperty("--ry", (y*100).toFixed(1) + "%");
+
+    const { c1, c2 } = paletteForItem(item);
+    cardEl.style.setProperty("--pc1", c1);
+    cardEl.style.setProperty("--pc2", c2);
+
+    cardEl.classList.remove("tap");
+    void cardEl.offsetWidth;
+    cardEl.classList.add("tap");
+    clearTimeout(cardEl._tapT);
+    cardEl._tapT = setTimeout(()=> cardEl.classList.remove("tap"), 520);
+  }
+
+  function playBtnTap(btn){
+    if(!btn) return;
+    btn.classList.remove("tapBtn");
+    void btn.offsetWidth;
+    btn.classList.add("tapBtn");
+    clearTimeout(btn._tapB);
+    btn._tapB = setTimeout(()=> btn.classList.remove("tapBtn"), 260);
   }
 
   function renderCards(){
@@ -872,6 +1155,8 @@
       const div = document.createElement("div");
       div.className = "item";
       div.innerHTML = `
+        <div class="tapHalo" aria-hidden="true"></div>
+        <div class="tapPortal" aria-hidden="true"></div>
         <div class="tagrow">${tagHTML(item)}</div>
         <p class="name">${item.name}</p>
         <p class="desc">${item.desc || ""}</p>
@@ -883,19 +1168,50 @@
           `).join("")}
         </div>
       `;
-      div.querySelectorAll(".pricebtn").forEach(b=>{
-        b.onclick = ()=> openModal(item.id, b.dataset.size);
+
+      // click en card (no botón)
+      div.addEventListener("click", (ev)=>{
+        if(ev.target.closest(".pricebtn")) return;
+        playCardPortal(div, ev, item);
       });
+
+      // click botón precio: portal + abrir modal
+      div.querySelectorAll(".pricebtn").forEach(b=>{
+        b.onclick = (ev)=>{
+          playBtnTap(b);
+          playCardPortal(div, ev, item);
+          openModal(item.id, b.dataset.size);
+        };
+      });
+
       cards.appendChild(div);
     });
   }
+
+  // ===== Modal portal =====
+  const portalFX = document.getElementById("portalFX");
+
+  function openPortalForItem(item){
+    const { c1, c2 } = paletteForItem(item);
+    document.documentElement.style.setProperty("--portal", c1);
+    document.documentElement.style.setProperty("--portal2", c2);
+
+    portalFX.classList.remove("on");
+    void portalFX.offsetWidth;
+    portalFX.classList.add("on");
+  }
+  function closePortal(){ portalFX.classList.remove("on"); }
 
   // ===== Modal + Extras + Opciones =====
   let modalItem = null;
 
   function extrasOptions(item){
-    if(item?.baseCat === "Snacks" || item?.baseCat === "Refresquería") return ["Sin extras"];
-    if(item?.baseCat === "Cafetería") return ["Sin extras", "Con extra (+10)", "Extra shot (+10)"];
+    if(item?.baseCat === "Snacks" || item?.baseCat === "Refresquería"){
+      return ["Sin extras"];
+    }
+    if(item?.baseCat === "Cafetería"){
+      return ["Sin extras", "Con extra (+10)", "Extra shot (+10)"];
+    }
     return ["Sin extras"];
   }
 
@@ -983,10 +1299,15 @@
     }
 
     $("#mNotes").value = "";
+
     $("#modalOverlay").classList.add("open");
+    requestAnimationFrame(() => openPortalForItem(modalItem));
   }
 
-  function closeModal(){ $("#modalOverlay").classList.remove("open"); }
+  function closeModal(){
+    $("#modalOverlay").classList.remove("open");
+    closePortal();
+  }
   $("#mClose").onclick = closeModal;
   $("#mCancel").onclick = closeModal;
   $("#modalOverlay").addEventListener("click", (e)=>{ if(e.target.id === "modalOverlay") closeModal(); });
