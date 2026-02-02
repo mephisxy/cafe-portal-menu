@@ -262,13 +262,17 @@
       border-radius: 999px;
       opacity:0;
       pointer-events:none;
-      z-index:0;
-      filter: drop-shadow(0 0 10px var(--pc1, rgba(57,184,255,.95)))
-              drop-shadow(0 0 24px var(--pc1, rgba(57,184,255,.95)))
-              drop-shadow(0 0 52px var(--pc2, rgba(124,77,255,.75)));
+      z-index:2;
+      mix-blend-mode: screen;
+
+      filter:
+        drop-shadow(0 0 14px var(--pc1, rgba(57,184,255,.95)))
+        drop-shadow(0 0 34px var(--pc1, rgba(57,184,255,.95)))
+        drop-shadow(0 0 80px var(--pc2, rgba(124,77,255,.75)));
+
       background:
         radial-gradient(circle at 50% 50%,
-          rgba(255,255,255,.70),
+          rgba(255,255,255,.78),
           var(--pc1, rgba(57,184,255,.95)) 35%,
           rgba(0,0,0,0) 70%);
     }
@@ -284,7 +288,6 @@
       100% { opacity:0; transform: translate(-50%,-50%) scale(22); }
     }
 
-    /* anillo */
     .item .tapPortal:after{
       content:"";
       position:absolute; inset:-22%;
@@ -302,14 +305,14 @@
       100%{ opacity:0; transform: scale(1.35) rotate(140deg); }
     }
 
-    /* halo suave atrás */
     .item .tapHalo{
       position:absolute; inset:-40%;
       background: radial-gradient(circle at 50% 50%, var(--pc2, rgba(124,77,255,.75)), rgba(0,0,0,0) 60%);
       opacity:0;
       filter: blur(22px);
       pointer-events:none;
-      z-index:0;
+      z-index:1;
+      mix-blend-mode: screen;
       transform: scale(.9);
     }
     .item.tap .tapHalo{
@@ -321,7 +324,6 @@
       100%{ opacity:0; transform: scale(1.08); }
     }
 
-    /* card pulse ligero */
     .item.tap{
       animation: cardPulse .35s ease-out both;
     }
@@ -334,7 +336,37 @@
       100%{ transform: translateY(0) scale(1); box-shadow: none; }
     }
 
-    .tagrow{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px; position:relative; z-index:1;}
+    /* ===========================
+       ✅ Bobok cameo (solo especiales)
+       =========================== */
+    .item .bobokPeek{
+      position:absolute;
+      right: 10px;
+      bottom: 10px;
+      width: 52px;
+      height: 52px;
+      opacity: 0;
+      transform: translateY(10px) scale(.92);
+      pointer-events:none;
+      z-index: 3;
+
+      filter:
+        drop-shadow(0 0 10px rgba(57,184,255,.28))
+        drop-shadow(0 0 18px rgba(124,77,255,.18));
+      mix-blend-mode: screen;
+    }
+    .item.isSpecial.tap .bobokPeek{
+      animation: bobokPeek .62s ease-out both;
+    }
+    @keyframes bobokPeek{
+      0%   { opacity:0; transform: translateY(10px) scale(.90); }
+      18%  { opacity:.75; }
+      55%  { opacity:.90; transform: translateY(0px) scale(1.0); }
+      100% { opacity:0; transform: translateY(-6px) scale(1.02); }
+    }
+    .item .bobokPeek svg{ width:100%; height:100%; display:block; opacity:.95; }
+
+    .tagrow{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px; position:relative; z-index:4;}
     .tag{
       font-size:11px;
       padding:3px 8px;
@@ -354,10 +386,10 @@
     .tag.baseRef{border-color: rgba(44,246,196,.45); color: rgba(44,246,196,.95)}
     .tag.baseSnack{border-color: rgba(255,214,140,.40); color: rgba(255,214,140,.95)}
 
-    .name{font-weight:1000; margin:0 0 6px; font-size:15px; text-transform:uppercase; letter-spacing:1.3px; position:relative; z-index:1;}
-    .desc{margin:0 0 10px; font-size:12px; color:rgba(234,240,255,.68); line-height:1.35; position:relative; z-index:1;}
+    .name{font-weight:1000; margin:0 0 6px; font-size:15px; text-transform:uppercase; letter-spacing:1.3px; position:relative; z-index:4;}
+    .desc{margin:0 0 10px; font-size:12px; color:rgba(234,240,255,.68); line-height:1.35; position:relative; z-index:4;}
 
-    .prices{display:flex; gap:8px; flex-wrap:wrap; align-items:center; position:relative; z-index:1;}
+    .prices{display:flex; gap:8px; flex-wrap:wrap; align-items:center; position:relative; z-index:4;}
     .pricebtn{
       padding:8px 10px;
       border-radius:12px;
@@ -727,6 +759,7 @@
       .item.tap .tapPortal,
       .item.tap .tapPortal:after,
       .item.tap .tapHalo,
+      .item.isSpecial.tap .bobokPeek,
       .portalWrap, .portalRing, .portalCore, .portalSparks, .portalWave, .portalFlash{
         animation:none!important;
       }
@@ -898,6 +931,112 @@
     </span>
     <span class="wabadge" id="waBadge">0 items • $0</span>
   </button>
+
+  <!-- ✅ Bobok inline (TU SVG, con IDs únicos para que siempre aparezca) -->
+  <template id="bobokTpl">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" aria-hidden="true" focusable="false">
+      <defs>
+        <filter id="bobokGlowStrong" x="-60%" y="-60%" width="220%" height="220%">
+          <feGaussianBlur stdDeviation="5.5" result="b1"/>
+          <feColorMatrix in="b1" type="matrix"
+            values="1 0 0 0 0
+                    0 1 0 0 0
+                    0 0 1 0 0
+                    0 0 0 0.85 0" result="b2"/>
+          <feMerge>
+            <feMergeNode in="b2"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+
+        <filter id="bobokAura" x="-80%" y="-80%" width="260%" height="260%">
+          <feGaussianBlur stdDeviation="18" result="a1"/>
+          <feColorMatrix in="a1" type="matrix"
+            values="0 0 0 0 0
+                    0 0.8 0 0 0
+                    0 0 1 0 0
+                    0 0 0 0.35 0" result="a2"/>
+          <feMerge>
+            <feMergeNode in="a2"/>
+          </feMerge>
+        </filter>
+
+        <filter id="bobokSpark" x="-200%" y="-200%" width="500%" height="500%">
+          <feGaussianBlur stdDeviation="1.2" result="s1"/>
+          <feMerge>
+            <feMergeNode in="s1"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+
+        <radialGradient id="bobokMist" cx="50%" cy="52%" r="42%">
+          <stop offset="0%" stop-color="#33BFFF" stop-opacity="0.35"/>
+          <stop offset="55%" stop-color="#1A7CFF" stop-opacity="0.14"/>
+          <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+
+      <rect width="512" height="512" fill="none"/>
+
+      <circle cx="256" cy="270" r="160" fill="url(#bobokMist)" filter="url(#bobokAura)"/>
+
+      <g opacity="0.9" filter="url(#bobokGlowStrong)">
+        <line x1="46" y1="256" x2="150" y2="256" stroke="#EAF6FF" stroke-width="4" stroke-linecap="round" opacity="0.65"/>
+        <line x1="362" y1="256" x2="466" y2="256" stroke="#EAF6FF" stroke-width="4" stroke-linecap="round" opacity="0.65"/>
+        <line x1="120" y1="256" x2="150" y2="256" stroke="#69D6FF" stroke-width="2" stroke-linecap="round" opacity="0.55"/>
+        <line x1="362" y1="256" x2="392" y2="256" stroke="#69D6FF" stroke-width="2" stroke-linecap="round" opacity="0.55"/>
+      </g>
+
+      <g filter="url(#bobokGlowStrong)">
+        <path d="M256 174 L350 256 L256 338 L162 256 Z"
+              fill="none" stroke="#FFFFFF" stroke-width="7"
+              stroke-linejoin="round" />
+
+        <circle cx="224" cy="252" r="7" fill="#FFFFFF"/>
+        <circle cx="288" cy="252" r="7" fill="#FFFFFF"/>
+
+        <circle cx="208" cy="268" r="3" fill="#BFF1FF" opacity="0.7"/>
+        <circle cx="304" cy="268" r="3" fill="#BFF1FF" opacity="0.7"/>
+
+        <path d="M224 258 Q214 305 256 322"
+              fill="none" stroke="#FFFFFF" stroke-width="5.5"
+              stroke-linecap="round"/>
+        <path d="M288 258 Q298 305 256 322"
+              fill="none" stroke="#FFFFFF" stroke-width="5.5"
+              stroke-linecap="round"/>
+
+        <path d="M256 338 L256 352"
+              stroke="#BFF1FF" stroke-width="3"
+              stroke-linecap="round" opacity="0.55"/>
+      </g>
+
+      <g opacity="0.95" filter="url(#bobokSpark)">
+        <circle cx="205" cy="205" r="1.8" fill="#EAF6FF"/>
+        <circle cx="238" cy="196" r="1.2" fill="#EAF6FF"/>
+        <circle cx="278" cy="202" r="1.5" fill="#EAF6FF"/>
+        <circle cx="310" cy="220" r="1.1" fill="#EAF6FF"/>
+        <circle cx="184" cy="240" r="1.0" fill="#EAF6FF"/>
+        <circle cx="330" cy="240" r="1.0" fill="#EAF6FF"/>
+        <circle cx="176" cy="270" r="1.4" fill="#EAF6FF"/>
+        <circle cx="336" cy="278" r="1.6" fill="#EAF6FF"/>
+        <circle cx="210" cy="312" r="1.0" fill="#EAF6FF"/>
+        <circle cx="252" cy="330" r="1.3" fill="#EAF6FF"/>
+        <circle cx="292" cy="322" r="1.0" fill="#EAF6FF"/>
+        <circle cx="318" cy="306" r="1.2" fill="#EAF6FF"/>
+
+        <circle cx="230" cy="222" r="2.6" fill="#9EEBFF" opacity="0.9"/>
+        <circle cx="300" cy="292" r="2.3" fill="#9EEBFF" opacity="0.85"/>
+        <circle cx="190" cy="288" r="2.0" fill="#9EEBFF" opacity="0.7"/>
+      </g>
+
+      <g opacity="0.22" filter="url(#bobokGlowStrong)">
+        <path d="M170 275 C190 250, 210 248, 230 268 C250 288, 275 295, 305 285 C335 275, 350 260, 360 246"
+              fill="none" stroke="#6FD9FF" stroke-width="6" stroke-linecap="round"/>
+        <path d="M160 242 C190 230, 220 236, 245 252 C270 268, 295 270, 332 255"
+              fill="none" stroke="#6FD9FF" stroke-width="5" stroke-linecap="round"/>
+      </g>
+    </svg>
+  </template>
 
 <script>
   const WHATSAPP_NUMBER = "526621448175";
@@ -1095,7 +1234,6 @@
     return chips.join("");
   }
 
-  // ====== Portal palettes ======
   function paletteForItem(item){
     const tags = item?.tags || [];
     const base = item?.baseCat || "";
@@ -1110,17 +1248,18 @@
     return { c1:"rgba(57,184,255,.98)", c2:"rgba(124,77,255,.75)" };
   }
 
-  // ✅ click portal animation on card
   function playCardPortal(cardEl, ev, item){
     if(!cardEl) return;
 
-    // coords inside card
     let x = 0.5, y = 0.42;
-    if(ev && typeof ev.clientX === "number"){
+    const cx = (ev && (ev.clientX ?? (ev.touches?.[0]?.clientX)));
+    const cy = (ev && (ev.clientY ?? (ev.touches?.[0]?.clientY)));
+    if(typeof cx === "number" && typeof cy === "number"){
       const r = cardEl.getBoundingClientRect();
-      x = (ev.clientX - r.left) / Math.max(1, r.width);
-      y = (ev.clientY - r.top) / Math.max(1, r.height);
+      x = (cx - r.left) / Math.max(1, r.width);
+      y = (cy - r.top) / Math.max(1, r.height);
     }
+
     cardEl.style.setProperty("--rx", (x*100).toFixed(1) + "%");
     cardEl.style.setProperty("--ry", (y*100).toFixed(1) + "%");
 
@@ -1144,6 +1283,13 @@
     btn._tapB = setTimeout(()=> btn.classList.remove("tapBtn"), 260);
   }
 
+  function injectBobok(host){
+    const tpl = document.getElementById("bobokTpl");
+    if(!tpl || !host) return;
+    host.innerHTML = "";
+    host.appendChild(tpl.content.cloneNode(true));
+  }
+
   function renderCards(){
     const cards = $("#cards");
     const results = MENU.filter(matches);
@@ -1154,9 +1300,16 @@
     results.forEach(item=>{
       const div = document.createElement("div");
       div.className = "item";
+
+      const isSpecial = (item.tags || []).includes("special");
+      if(isSpecial) div.classList.add("isSpecial");
+
       div.innerHTML = `
         <div class="tapHalo" aria-hidden="true"></div>
         <div class="tapPortal" aria-hidden="true"></div>
+
+        ${isSpecial ? `<div class="bobokPeek" aria-hidden="true" data-bobok="1"></div>` : ""}
+
         <div class="tagrow">${tagHTML(item)}</div>
         <p class="name">${item.name}</p>
         <p class="desc">${item.desc || ""}</p>
@@ -1169,19 +1322,22 @@
         </div>
       `;
 
-      // click en card (no botón)
-      div.addEventListener("click", (ev)=>{
+      if(isSpecial){
+        const host = div.querySelector('[data-bobok="1"]');
+        injectBobok(host);
+      }
+
+      div.addEventListener("pointerdown", (ev)=>{
         if(ev.target.closest(".pricebtn")) return;
         playCardPortal(div, ev, item);
       });
 
-      // click botón precio: portal + abrir modal
       div.querySelectorAll(".pricebtn").forEach(b=>{
-        b.onclick = (ev)=>{
+        b.addEventListener("pointerdown", (ev)=>{
           playBtnTap(b);
           playCardPortal(div, ev, item);
           openModal(item.id, b.dataset.size);
-        };
+        });
       });
 
       cards.appendChild(div);
